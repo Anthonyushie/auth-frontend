@@ -107,8 +107,14 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // Only attempt refresh on 401 AND if we haven't already retried this
-    // specific request (prevents infinite loops).
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const url = originalRequest.url || "";
+    const isAuthEndpoint =
+      url.includes("/login") ||
+      url.includes("/register") ||
+      url.includes("/refresh");
+
+    // Only attempt refresh on 401 for protected API requests, not on auth routes themselves.
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       // If a refresh is already in progress, queue this request instead of
       // firing a second /refresh call.
       if (isRefreshing) {
@@ -128,7 +134,7 @@ api.interceptors.response.use(
         // The backend rotates the refresh token and returns a new access token.
         const { data } = await api.post("/refresh");
 
-        const newAccessToken: string = data.accessToken;
+        const newAccessToken: string = data.data?.accessToken || data.accessToken;
 
         // Store the fresh access token in memory.
         setAccessToken(newAccessToken);

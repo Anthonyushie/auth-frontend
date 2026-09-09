@@ -52,11 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const attemptSilentRefresh = async () => {
       try {
         const { data } = await api.post("/refresh");
-        setAccessToken(data.accessToken);
+        const token = data.data?.accessToken || data.accessToken;
+        setAccessToken(token);
 
         // Fetch the user profile with the fresh token
         const profileRes = await api.get("/profile");
-        setUser(profileRes.data.user ?? profileRes.data);
+        setUser(profileRes.data.data?.user ?? profileRes.data.user ?? profileRes.data);
       } catch {
         // No valid refresh cookie — user is not logged in. That's fine.
         setAccessToken(null);
@@ -76,15 +77,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const { data } = await api.post("/login", { email, password });
 
-    // Store access token in memory (NEVER in localStorage).
-    setAccessToken(data.accessToken);
+    // Store access token in memory (from Express wrapper { data: { accessToken } })
+    const token = data.data?.accessToken || data.accessToken;
+    setAccessToken(token);
 
-    // The backend also sets the refresh token as an HTTP-only cookie — the
-    // browser handles that automatically, we don't need to touch it.
-
-    // Fetch user profile
-    const profileRes = await api.get("/profile");
-    setUser(profileRes.data.user ?? profileRes.data);
+    // The backend also sets the refresh token as an HTTP-only cookie automatically.
+    // Use user returned directly in login response to eliminate a redundant round-trip.
+    const user = data.data?.user || data.user;
+    if (user) {
+      setUser(user);
+    } else {
+      const profileRes = await api.get("/profile");
+      setUser(profileRes.data.data?.user ?? profileRes.data.user ?? profileRes.data);
+    }
   }, []);
 
   // -----------------------------------------------------------------------
