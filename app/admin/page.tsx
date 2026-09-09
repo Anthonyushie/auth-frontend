@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import { AxiosError } from "axios";
@@ -174,10 +175,20 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="mx-auto max-w-3xl py-12">
-      <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        System overview and security status.
-      </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            System overview and security status.
+          </p>
+        </div>
+        <Link
+          href="/admin/users"
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+        >
+          Manage Users
+        </Link>
+      </div>
 
       {/* ----------------------------------------------------------------- */}
       {/* Welcome Banner                                                     */}
