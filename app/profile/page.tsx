@@ -5,15 +5,16 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 
 interface ProfileData {
-  id: string;
-  email: string;
-  role: string;
+  id?: string;
+  userId?: string;
+  email?: string;
+  role?: string;
   createdAt?: string;
   [key: string]: unknown;
 }
 
 export default function ProfilePage() {
-  const { loading: authLoading } = useAuth();
+  const { user: authUser, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,17 +26,21 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       try {
         const { data } = await api.get("/profile");
-        setProfile(data.user ?? data);
+        // Backend returns: { success: true, data: { user: { userId, email, role } } }
+        const resolved = data.data?.user || data.user || data.data || data;
+        setProfile(resolved);
       } catch {
-        // 401 is handled by the interceptor (redirect to /login).
-        // Other errors just leave the profile empty.
+        // Fallback to in-memory user from AuthContext if available
+        if (authUser) {
+          setProfile(authUser as unknown as ProfileData);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [authLoading]);
+  }, [authLoading, authUser]);
 
   // -----------------------------------------------------------------------
   // Loading Skeleton
@@ -66,6 +71,11 @@ export default function ProfilePage() {
     );
   }
 
+  const email = profile.email || "No email";
+  const initials = email.charAt(0).toUpperCase();
+  const role = profile.role || "user";
+  const userId = (profile.id || profile.userId || "N/A") as string;
+
   return (
     <div className="mx-auto max-w-lg py-12">
       <h1 className="text-2xl font-bold text-gray-900">Your Profile</h1>
@@ -74,21 +84,21 @@ export default function ProfilePage() {
         {/* Avatar / initials */}
         <div className="flex items-center gap-4 border-b border-gray-100 px-8 py-6">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-lg font-bold text-indigo-600">
-            {profile.email.charAt(0).toUpperCase()}
+            {initials}
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{profile.email}</p>
+            <p className="font-semibold text-gray-900">{email}</p>
             <span className="inline-block mt-1 rounded-full bg-indigo-50 px-3 py-0.5 text-xs font-medium text-indigo-700 capitalize">
-              {profile.role}
+              {role}
             </span>
           </div>
         </div>
 
         {/* Details */}
         <div className="divide-y divide-gray-100 px-8">
-          <DetailRow label="User ID" value={profile.id} />
-          <DetailRow label="Email" value={profile.email} />
-          <DetailRow label="Role" value={profile.role} />
+          <DetailRow label="User ID" value={userId} />
+          <DetailRow label="Email" value={email} />
+          <DetailRow label="Role" value={role} />
           {profile.createdAt && (
             <DetailRow
               label="Member since"
