@@ -8,8 +8,15 @@ import axios from "axios";
 // cookie on every request to the backend.
 // ---------------------------------------------------------------------------
 
+const getBaseURL = (): string => {
+  const raw = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/auth").trim().replace(/\/+$/, "");
+  if (raw.endsWith("/api/auth")) return raw;
+  if (raw.endsWith("/api")) return `${raw}/auth`;
+  return `${raw}/api/auth`;
+};
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/auth",
+  baseURL: getBaseURL(),
   withCredentials: true, // send & receive HTTP-only cookies
   headers: { "Content-Type": "application/json" },
 });
