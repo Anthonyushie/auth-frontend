@@ -38,12 +38,14 @@ export default function Navbar() {
                 >
                   Tasks
                 </Link>
-                <Link
-                  href="/admin"
-                  className="text-gray-600 transition hover:text-indigo-600"
-                >
-                  Admin
-                </Link>
+                {user.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className="text-gray-600 transition hover:text-indigo-600"
+                  >
+                    Admin
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="rounded-lg bg-indigo-600 px-4 py-1.5 text-white transition hover:bg-indigo-700"

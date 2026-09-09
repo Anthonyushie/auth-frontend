@@ -25,7 +25,7 @@ interface AuthContextValue {
   accessToken: string | null;
   loading: boolean; // true while we're checking if the user has a valid session
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, role: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -97,8 +97,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // -----------------------------------------------------------------------
 
   const register = useCallback(
-    async (email: string, password: string, role: string) => {
-      await api.post("/register", { email, password, role });
+    async (email: string, password: string) => {
+      await api.post("/register", { email, password, role: "user" });
       // Registration doesn't auto-login — caller should redirect to /login.
     },
     []

@@ -12,7 +12,6 @@ export default function RegisterPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -22,7 +21,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await register(email, password, role);
+      await register(email, password);
       // Registration successful — redirect to login.
       router.push("/login");
     } catch (err) {
@@ -97,24 +96,6 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Role */}
-          <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Role
-            </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
 
           {/* Submit */}
           <button
