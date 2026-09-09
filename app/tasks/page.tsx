@@ -59,10 +59,18 @@ export default function TasksPage() {
     try {
       // Using the custom `api` instance with tasksConfig — JWT interceptor handled automatically.
       const { data } = await api.get("/tasks", tasksConfig);
-      setTasks(data.tasks ?? data);
+      const taskList = Array.isArray(data.data)
+        ? data.data
+        : Array.isArray(data.tasks)
+        ? data.tasks
+        : Array.isArray(data)
+        ? data
+        : [];
+      setTasks(taskList);
     } catch {
       // 401 → interceptor redirects to /login
       // Other errors → leave task list empty
+      setTasks([]);
     } finally {
       setLoading(false);
     }
@@ -89,7 +97,7 @@ export default function TasksPage() {
     try {
       // The interceptor attaches the Bearer token automatically.
       const { data } = await api.post("/tasks", { title: newTitle.trim() }, tasksConfig);
-      const created: Task = data.task ?? data;
+      const created: Task = data.data ?? data.task ?? data;
 
       // Optimistic update — add to the top of the list immediately.
       setTasks((prev) => [created, ...prev]);
