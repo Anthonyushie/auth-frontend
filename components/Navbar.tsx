@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useSubscription } from "@/context/SubscriptionContext";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
+  const { hasAccess } = useSubscription();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -33,11 +35,19 @@ export default function Navbar() {
                   Profile
                 </Link>
                 <Link
-                  href="/tasks"
+                  href="/"
                   className="text-gray-600 transition hover:text-indigo-600"
                 >
-                  Tasks
+                  Articles
                 </Link>
+                {!hasAccess && (
+                  <Link
+                    href="/subscribe"
+                    className="rounded-full bg-amber-100 px-4 py-1.5 text-amber-800 transition hover:bg-amber-200"
+                  >
+                    Subscribe
+                  </Link>
+                )}
                 {user.role === "admin" && (
                   <Link
                     href="/admin"

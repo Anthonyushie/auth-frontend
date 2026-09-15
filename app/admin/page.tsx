@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import { AxiosError } from "axios";
+import ArticleManager from "@/components/ArticleManager";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -323,6 +324,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       )}
+      <ArticleManager />
     </div>
   );
 }

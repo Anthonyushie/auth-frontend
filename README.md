@@ -1,6 +1,6 @@
-# Next.js Authentication & Tasks Client
+# Next.js Authentication & Paid Content Client
 
-A production-ready client built with **Next.js 15 (App Router)**, **React 19**, **TypeScript**, and **Tailwind CSS**. Designed to connect securely to an Express backend using short-lived in-memory **JWT Access Tokens** and long-lived **HTTP-only cookie Refresh Tokens** with automated token rotation and request queuing.
+A production-ready client built with **Next.js 15 (App Router)**, **React 19**, **TypeScript**, and **Tailwind CSS**. Medium-style paid content gated by a Flutterwave single-tier subscription (₦5,000/mo). Auth uses short-lived in-memory **JWT Access Tokens** and long-lived **HTTP-only cookie Refresh Tokens** with automated token rotation and request queuing.
 
 ---
 
@@ -31,26 +31,31 @@ The custom Axios interceptor (`lib/axios.ts`) orchestrates seamless session reco
 auth-frontend/
 ├── app/
 │   ├── admin/
-│   │   └── page.tsx          # Protected Admin Dashboard (explicit 403 Forbidden handler)
+│   │   └── page.tsx          # Admin dashboard + article editor (explicit 403 handler)
+│   ├── articles/
+│   │   └── [slug]/page.tsx   # Gated reader (402 → paywall card, else markdown body)
+│   ├── subscribe/
+│   │   ├── page.tsx          # Checkout → Flutterwave paymentLink redirect
+│   │   └── callback/page.tsx # Verify transaction_id+tx_ref → activate → redirect
 │   ├── login/
 │   │   └── page.tsx          # Login form with error mapping (401, 400)
 │   ├── profile/
 │   │   └── page.tsx          # Protected User Profile (skeleton loader, account details)
 │   ├── register/
 │   │   └── page.tsx          # Registration form (role selection, 409 conflict handling)
-│   ├── tasks/
-│   │   └── page.tsx          # Protected Tasks CRUD (optimistic updates, toggle, delete)
 │   ├── globals.css           # Tailwind CSS styles
-│   ├── layout.tsx            # Root layout with AuthProvider & Navbar
-│   └── page.tsx              # Landing page
+│   ├── layout.tsx            # Root layout with AuthProvider + SubscriptionProvider & Navbar
+│   └── page.tsx              # Articles feed (titles only, lock icons)
 ├── components/
-│   └── Navbar.tsx            # Navigation bar with dynamic auth links
+│   ├── ArticleManager.tsx    # Admin CRUD form + table for articles
+│   └── Navbar.tsx            # Navigation bar with Articles / Subscribe / Admin links
 ├── context/
-│   └── AuthContext.tsx       # Auth context (in-memory token, user, login, register, logout)
+│   ├── AuthContext.tsx       # Auth context (in-memory token, user, login, register, logout)
+│   └── SubscriptionContext.tsx # Subscription status (hasAccess, refreshStatus)
 ├── lib/
-│   └── axios.ts              # Custom Axios instance with request/response interceptors
+│   └── axios.ts              # `api` (/api/auth) + `apiRoot` (/api) sharing token/refresh
 ├── types/
-│   └── index.ts              # TypeScript interfaces (Task, User, etc.)
+│   └── index.ts              # TypeScript interfaces (ArticleListItem, ArticleFull, etc.)
 ├── .env.local                # Local environment variables
 ├── next.config.ts            # Next.js configuration
 ├── package.json              # Project dependencies and scripts
@@ -70,10 +75,17 @@ auth-frontend/
 | `/api/auth/logout` | `POST` | Optional | Invalidate session and clear refresh cookie |
 | `/api/auth/profile` | `GET` | Bearer Token | Fetch authenticated user profile |
 | `/api/auth/admin-dashboard` | `GET` | Bearer + Admin | Access admin panel (returns 403 for non-admin users) |
-| `/api/tasks` | `GET` | Bearer Token | List tasks belonging to current user |
-| `/api/tasks` | `POST` | Bearer Token | Create a new task (`title`) |
-| `/api/tasks/:id` | `PUT` | Bearer Token | Update task status (`completed`) |
-| `/api/tasks/:id` | `DELETE` | Bearer Token | Delete a task by ID |
+| `/api/auth/users` | `GET` | Bearer + Admin | List all users |
+| `/api/auth/users/:id/role` | `PUT` | Bearer + Admin | Update a user's role |
+| `/api/auth/users/:id` | `DELETE` | Bearer + Admin | Delete a user |
+| `/api/articles` | `GET` | Bearer Token | List titles/metadata only (no body) |
+| `/api/articles/:slug` | `GET` | Bearer Token | Full body if subscribed, else `402` |
+| `/api/articles` | `POST` | Bearer + Admin | Create article (`title>=3`, `body>=50`) |
+| `/api/articles/:id` | `PUT` | Bearer + Admin | Update article |
+| `/api/articles/:id` | `DELETE` | Bearer + Admin | Delete article |
+| `/api/payments/checkout` | `POST` | Bearer Token | Start sub, returns `{paymentLink,txRef}` |
+| `/api/payments/verify` | `GET` | Bearer Token | Verify `transaction_id+tx_ref` → activate |
+| `/api/payments/status` | `GET` | Bearer Token | `{hasAccess,status,currentPeriodEnd}` |
 
 ---
 
@@ -96,17 +108,23 @@ auth-frontend/
 - Displays an animated loading skeleton during fetch or token validation.
 - Renders user avatar initials, role badge, email, and joined date.
 
-### 4. Admin Dashboard with RBAC (`app/admin/page.tsx`)
-- Targets `GET /api/auth/admin-dashboard`.
+### 4. Admin Dashboard with RBAC (`app/admin/page.tsx` + `components/ArticleManager.tsx`)
+- Targets `GET /api/auth/admin-dashboard` and user management endpoints (`/api/auth/users*`).
 - **Explicit 403 Forbidden Handling**: If an authenticated non-admin user attempts access, the page renders a stylized **"Permission Denied: Admins Only"** shield card rather than crashing.
+- **Article Editor**: Admins create/edit/delete paywalled stories (`title>=3`, `body>=50`, Draft/Published).
 
-### 5. Protected Tasks CRUD (`app/tasks/page.tsx`)
-- **Route Guard**: Automatically redirects unauthenticated users to `/login`.
-- **Create**: Add tasks with instant optimistic prepend to local state.
-- **Read**: Fetches tasks on mount using custom Axios client.
-- **Update**: Checkbox toggle for completed/incomplete with optimistic toggle and automatic rollback if the API fails.
-- **Delete**: Hover trash button with immediate removal from local state.
-- **JWT & Token Refresh**: All operations transparently invoke `lib/axios.ts`, guaranteeing fresh tokens without user intervention.
+### 5. Articles Feed + Paywall (`app/page.tsx`, `app/articles/[slug]/page.tsx`)
+- **Route Guard**: Redirects unauthenticated users to `/login`.
+- **Feed**: Titles/metadata only, lock badge when `!hasAccess`.
+- **Detail**: `402` → paywall card + Subscribe CTA; else markdown body via `react-markdown`.
+- **JWT & Token Refresh**: All operations use `api`/`apiRoot` from `lib/axios.ts`.
+
+### 6. Subscribe Flow (`app/subscribe/page.tsx`, `callback/page.tsx`)
+- Checkout → `window.location=paymentLink` (Flutterwave Standard, plan 243392).
+- Callback verifies `transaction_id+tx_ref` server-side, refreshes status, redirects to `/`.
+
+### 7. Subscription State (`context/SubscriptionContext.tsx`)
+- Fetches `GET /payments/status` after login; exposes `hasAccess, refreshStatus()`.
 
 ---
 
@@ -139,4 +157,3 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 npm run build
 npm run start
 ```
-# auth-frontend

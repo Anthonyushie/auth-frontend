@@ -1,23 +1,33 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
 // ---------------------------------------------------------------------------
-// Axios Instance
+// Base URLs
 // ---------------------------------------------------------------------------
-// Central Axios instance every component imports. `withCredentials` is
-// critical — it tells the browser to include the HTTP-only refresh-token
-// cookie on every request to the backend.
+// `api`     → /api/auth (login, register, refresh, profile, admin-dashboard)
+// `apiRoot` → /api      (articles, payments) — same interceptors, same token.
+// Both share the in-memory token + single refresh lock/queue below.
 // ---------------------------------------------------------------------------
 
-const getBaseURL = (): string => {
+const getAuthBaseURL = (): string => {
   const raw = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/auth").trim().replace(/\/+$/, "");
   if (raw.endsWith("/api/auth")) return raw;
   if (raw.endsWith("/api")) return `${raw}/auth`;
   return `${raw}/api/auth`;
 };
 
+const getApiRootBaseURL = (): string => {
+  return getAuthBaseURL().replace(/\/auth\/?$/, "");
+};
+
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: getAuthBaseURL(),
   withCredentials: true, // send & receive HTTP-only cookies
+  headers: { "Content-Type": "application/json" },
+});
+
+export const apiRoot = axios.create({
+  baseURL: getApiRootBaseURL(),
+  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -39,40 +49,7 @@ export const setAccessToken = (token: string | null) => {
 export const getAccessToken = () => inMemoryAccessToken;
 
 // ---------------------------------------------------------------------------
-// Request Interceptor — attach the access token
-// ---------------------------------------------------------------------------
-// Before every outgoing request, if we hold an access token in memory, we
-// inject it as a Bearer token in the Authorization header.
-// ---------------------------------------------------------------------------
-
-api.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// ---------------------------------------------------------------------------
-// Response Interceptor — silent token rotation on 401
-// ---------------------------------------------------------------------------
-// When the backend returns 401 (access token expired or invalid) we:
-//   1. Pause the failing request.
-//   2. Call POST /refresh — the browser automatically sends the HTTP-only
-//      refresh-token cookie. The backend validates it, rotates the refresh
-//      token (invalidating the old one), and returns a fresh access token.
-//   3. Store the new access token in memory.
-//   4. Retry the original request with the new token.
-//
-// If /refresh itself fails (e.g. refresh token expired, or the backend
-// detected token reuse — a sign of theft), we clear state and redirect
-// to /login so the user re-authenticates.
-//
-// A "refreshing" lock prevents multiple concurrent 401s from each
-// independently hitting /refresh and causing race conditions.
+// Shared silent-refresh machinery (single lock + queue across both clients)
 // ---------------------------------------------------------------------------
 
 let isRefreshing = false;
@@ -99,72 +76,88 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
-api.interceptors.response.use(
-  // Happy path — pass successful responses straight through.
-  (response) => response,
-
-  async (error) => {
-    const originalRequest = error.config;
-
-    // Only attempt refresh on 401 AND if we haven't already retried this
-    const url = originalRequest.url || "";
-    const isAuthEndpoint =
-      url.includes("/login") ||
-      url.includes("/register") ||
-      url.includes("/refresh");
-
-    // Only attempt refresh on 401 for protected API requests, not on auth routes themselves.
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
-      // If a refresh is already in progress, queue this request instead of
-      // firing a second /refresh call.
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
-        });
+const attachInterceptors = (client: AxiosInstance) => {
+  client.interceptors.request.use(
+    (config) => {
+      const token = getAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-      originalRequest._retry = true; // mark so we don't retry again
-      isRefreshing = true;
+  client.interceptors.response.use(
+    // Happy path — pass successful responses straight through.
+    (response) => response,
 
-      try {
-        // POST /refresh — the HTTP-only cookie is sent automatically.
-        // The backend rotates the refresh token and returns a new access token.
-        const { data } = await api.post("/refresh");
+    async (error) => {
+      const originalRequest = error.config;
 
-        const newAccessToken: string = data.data?.accessToken || data.accessToken;
+      // Only attempt refresh on 401 AND if we haven't already retried this
+      const url = originalRequest.url || "";
+      const isAuthEndpoint =
+        url.includes("/login") ||
+        url.includes("/register") ||
+        url.includes("/refresh");
 
-        // Store the fresh access token in memory.
-        setAccessToken(newAccessToken);
-
-        // Retry every request that was queued while we were refreshing.
-        processQueue(null, newAccessToken);
-
-        // Retry the original request that triggered this whole flow.
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        // Refresh failed — token is invalid, expired, or reuse was detected.
-        // Reject all queued requests and redirect to login.
-        processQueue(refreshError, null);
-        setAccessToken(null);
-
-        // Only redirect on the client (avoid crashing during SSR).
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
+      // Only attempt refresh on 401 for protected API requests, not on auth routes themselves.
+      if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+        // If a refresh is already in progress, queue this request instead of
+        // firing a second /refresh call.
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          }).then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return client(originalRequest);
+          });
         }
 
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
-    }
+        originalRequest._retry = true; // mark so we don't retry again
+        isRefreshing = true;
 
-    // For non-401 errors, just propagate them normally.
-    return Promise.reject(error);
-  }
-);
+        try {
+          // POST /refresh on the AUTH client — the HTTP-only cookie is sent automatically.
+          // The backend rotates the refresh token and returns a new access token.
+          const { data } = await api.post("/refresh");
+
+          const newAccessToken: string = data.data?.accessToken || data.accessToken;
+
+          // Store the fresh access token in memory.
+          setAccessToken(newAccessToken);
+
+          // Retry every request that was queued while we were refreshing.
+          processQueue(null, newAccessToken);
+
+          // Retry the original request that triggered this whole flow.
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return client(originalRequest);
+        } catch (refreshError) {
+          // Refresh failed — token is invalid, expired, or reuse was detected.
+          // Reject all queued requests and redirect to login.
+          processQueue(refreshError, null);
+          setAccessToken(null);
+
+          // Only redirect on the client (avoid crashing during SSR).
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
+      }
+
+      // For non-401 errors, just propagate them normally.
+      return Promise.reject(error);
+    }
+  );
+};
+
+attachInterceptors(api);
+attachInterceptors(apiRoot);
 
 export default api;
