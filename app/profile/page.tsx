@@ -1,8 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useSubscription } from "@/context/SubscriptionContext";
 import api from "@/lib/axios";
+import {
+  Badge,
+  EmptyState,
+  Kicker,
+  btnPrimary,
+  btnSecondary,
+} from "@/components/ui";
 
 interface ProfileData {
   id?: string;
@@ -13,24 +23,40 @@ interface ProfileData {
   [key: string]: unknown;
 }
 
+function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-6 py-3.5">
+      <dt className="shrink-0 text-[13px] text-[#78716c]">{label}</dt>
+      <dd className="min-w-0 truncate text-right text-[13.5px] font-semibold text-[#1c1917]">
+        {value}
+      </dd>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
-  const { user: authUser, loading: authLoading } = useAuth();
+  const { user: authUser, loading: authLoading, logout } = useAuth();
+  const { hasAccess, status, currentPeriodEnd, loading: subLoading } =
+    useSubscription();
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Wait for the AuthProvider to finish its silent-refresh attempt
-    // before we hit the protected endpoint.
+    if (!authLoading && !authUser) {
+      router.push("/login");
+    }
+  }, [authLoading, authUser, router]);
+
+  useEffect(() => {
     if (authLoading) return;
 
     const fetchProfile = async () => {
       try {
         const { data } = await api.get("/profile");
-        // Backend returns: { success: true, data: { user: { userId, email, role } } }
         const resolved = data.data?.user || data.user || data.data || data;
         setProfile(resolved);
       } catch {
-        // Fallback to in-memory user from AuthContext if available
         if (authUser) {
           setProfile(authUser as unknown as ProfileData);
         }
@@ -42,84 +68,156 @@ export default function ProfilePage() {
     fetchProfile();
   }, [authLoading, authUser]);
 
-  // -----------------------------------------------------------------------
-  // Loading Skeleton
-  // -----------------------------------------------------------------------
-
   if (authLoading || loading) {
     return (
-      <div className="mx-auto max-w-lg animate-pulse space-y-6 py-12">
-        <div className="h-8 w-40 rounded bg-gray-200" />
-        <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-8">
-          <div className="h-4 w-3/4 rounded bg-gray-200" />
-          <div className="h-4 w-1/2 rounded bg-gray-200" />
-          <div className="h-4 w-2/3 rounded bg-gray-200" />
+      <div className="mx-auto max-w-2xl px-6 pb-16 pt-10">
+        <div className="tynk-skeleton h-3 w-20 rounded" />
+        <div className="tynk-skeleton mt-3 h-8 w-52 rounded-md" />
+        <div className="mt-6 rounded-lg border border-[#e7e5e4] p-6">
+          <div className="tynk-skeleton h-4 w-2/3 rounded" />
+          <div className="tynk-skeleton mt-3 h-4 w-1/2 rounded" />
+          <div className="tynk-skeleton mt-3 h-4 w-3/5 rounded" />
         </div>
       </div>
     );
   }
 
-  // -----------------------------------------------------------------------
-  // Profile Card
-  // -----------------------------------------------------------------------
-
   if (!profile) {
     return (
-      <div className="py-20 text-center text-gray-500">
-        Unable to load profile data.
+      <div className="mx-auto max-w-2xl px-6 pb-16 pt-10">
+        <EmptyState
+          title="Could not load your profile"
+          body="We couldn't retrieve your account details. Try signing in again."
+          action={
+            <Link href="/login" className={btnPrimary}>
+              Sign in
+            </Link>
+          }
+        />
       </div>
     );
   }
 
   const email = profile.email || "No email";
-  const initials = email.charAt(0).toUpperCase();
   const role = profile.role || "user";
-  const userId = (profile.id || profile.userId || "N/A") as string;
+  const userId = (profile.id || profile.userId || "—") as string;
+  const joined = profile.createdAt
+    ? new Date(profile.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "—";
 
   return (
-    <div className="mx-auto max-w-lg py-12">
-      <h1 className="text-2xl font-bold text-gray-900">Your Profile</h1>
+    <div className="mx-auto max-w-2xl px-6 pb-16 pt-10">
+      <Kicker>Account</Kicker>
+      <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+        Your account
+      </h1>
+      <p className="mt-1.5 text-sm text-[#78716c]">
+        Profile, role, and subscription in one place.
+      </p>
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        {/* Avatar / initials */}
-        <div className="flex items-center gap-4 border-b border-gray-100 px-8 py-6">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-lg font-bold text-indigo-600">
-            {initials}
-          </div>
-          <div>
-            <p className="font-semibold text-gray-900">{email}</p>
-            <span className="inline-block mt-1 rounded-full bg-indigo-50 px-3 py-0.5 text-xs font-medium text-indigo-700 capitalize">
-              {role}
-            </span>
-          </div>
+      {/* Identity */}
+      <div className="mt-7 flex items-center gap-4 border-y border-[#e7e5e4] py-5">
+        <span
+          aria-hidden="true"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1c1917] text-[15px] font-bold text-white"
+        >
+          {email.charAt(0).toUpperCase()}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[15px] font-bold tracking-tight text-[#1c1917]">
+            {email}
+          </p>
+          <p className="mt-0.5 text-[13px] capitalize text-[#78716c]">{role}</p>
         </div>
+        <Badge tone={role === "admin" ? "dark" : "neutral"}>{role}</Badge>
+      </div>
 
-        {/* Details */}
-        <div className="divide-y divide-gray-100 px-8">
-          <DetailRow label="User ID" value={userId} />
-          <DetailRow label="Email" value={email} />
-          <DetailRow label="Role" value={role} />
-          {profile.createdAt && (
-            <DetailRow
-              label="Member since"
-              value={new Date(profile.createdAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            />
+      {/* Details */}
+      <section aria-label="Profile details" className="mt-2 divide-y divide-[#f0eeec]">
+        <Row label="Email" value={email} />
+        <Row
+          label="User ID"
+          value={
+            <span className="font-mono text-[12.5px] font-medium" title={userId}>
+              {userId.length > 18 ? `${userId.slice(0, 12)}…` : userId}
+            </span>
+          }
+        />
+        <Row label="Role" value={<span className="capitalize">{role}</span>} />
+        <Row label="Member since" value={joined} />
+      </section>
+
+      {/* Subscription */}
+      <section aria-label="Subscription" className="mt-8 rounded-lg border border-[#e7e5e4]">
+        <div className="flex items-center justify-between border-b border-[#e7e5e4] px-5 py-3.5">
+          <h2 className="text-[13.5px] font-bold tracking-[-0.01em] text-[#1c1917]">
+            Subscription
+          </h2>
+          {subLoading ? (
+            <span className="text-xs font-medium text-[#a8a29e]">Checking…</span>
+          ) : (
+            <Badge tone={hasAccess ? "success" : "neutral"}>
+              {hasAccess ? "Active" : "Inactive"}
+            </Badge>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
+        <div className="px-5 py-4">
+          {hasAccess ? (
+            <>
+              <p className="text-sm leading-relaxed text-[#57534e]">
+                <span className="font-semibold text-[#1c1917]">
+                  {status}
+                </span>
+                {currentPeriodEnd && (
+                  <>
+                    {" "}· renews by{" "}
+                    {new Date(currentPeriodEnd).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </>
+                )}
+              </p>
+              <div className="mt-4">
+                <Link href="/" className={btnSecondary}>
+                  Continue reading
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm leading-relaxed text-[#57534e]">
+                You don&apos;t have an active subscription.{" "}
+                <span className="font-semibold text-[#1c1917]">₦5,000/mo</span>{" "}
+                unlocks every story.
+              </p>
+              <div className="mt-4">
+                <Link href="/subscribe" className={btnPrimary}>
+                  Subscribe — ₦5,000/mo
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between py-4">
-      <span className="text-sm text-gray-500">{label}</span>
-      <span className="text-sm font-medium text-gray-900">{value}</span>
+      <div className="mt-6">
+        <button
+          type="button"
+          onClick={async () => {
+            await logout();
+            router.push("/login");
+          }}
+          className="cursor-pointer text-[13px] font-semibold text-[#78716c] underline decoration-[#e7e5e4] underline-offset-4 transition-colors hover:text-[#ff751f] hover:decoration-[#ff751f]"
+        >
+          Sign out
+        </button>
+      </div>
     </div>
   );
 }

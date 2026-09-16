@@ -1,16 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import { AxiosError } from "axios";
-import Link from "next/link";
+import {
+  BackLink,
+  Badge,
+  EmptyState,
+  FieldError,
+  Kicker,
+  btnSecondary,
+  btnSmallDanger,
+} from "@/components/ui";
 
 interface UserData {
   id: string;
   email: string;
   role: string;
   createdAt: string;
+}
+
+function formatDate(value: string) {
+  try {
+    return new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return value;
+  }
 }
 
 export default function AdminUsersPage() {
@@ -42,6 +63,7 @@ export default function AdminUsersPage() {
   useEffect(() => {
     if (authLoading) return;
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
@@ -66,132 +88,154 @@ export default function AdminUsersPage() {
     }
   };
 
-  // -----------------------------------------------------------------------
-  // Loading Skeleton
-  // -----------------------------------------------------------------------
   if (authLoading || loading) {
     return (
-      <div className="mx-auto max-w-4xl animate-pulse space-y-6 py-12">
-        <div className="h-8 w-56 rounded bg-gray-200" />
-        <div className="h-64 rounded-2xl bg-gray-200" />
-      </div>
-    );
-  }
-
-  // -----------------------------------------------------------------------
-  // 403 — Permission Denied
-  // -----------------------------------------------------------------------
-  if (forbidden) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="max-w-md rounded-2xl border border-red-200 bg-red-50 p-10 text-center shadow-sm">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.75h-.152c-3.196 0-6.1-1.25-8.25-3.286ZM12 15.75h.007v.008H12v-.008Z" />
-            </svg>
-          </div>
-          <h2 className="mt-5 text-xl font-bold text-red-800">Permission Denied</h2>
-          <p className="mt-2 text-sm text-red-600">Admins Only — You do not have the required permissions.</p>
+      <div className="mx-auto max-w-5xl px-6 pb-16 pt-10">
+        <div className="tynk-skeleton h-3 w-16 rounded" />
+        <div className="tynk-skeleton mt-3 h-8 w-56 rounded-md" />
+        <div className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4]">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center gap-3 border-b border-[#f0eeec] px-5 py-4 last:border-0">
+              <div className="tynk-skeleton h-8 w-8 rounded-full" />
+              <div className="tynk-skeleton h-4 w-48 rounded" />
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  // -----------------------------------------------------------------------
-  // Main Content
-  // -----------------------------------------------------------------------
-  return (
-    <div className="mx-auto max-w-5xl py-12">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin" className="rounded-full bg-gray-100 p-2 text-gray-500 hover:bg-gray-200 transition">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-            </svg>
+  if (forbidden) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 pb-16 pt-14">
+        <Kicker>403 · Restricted</Kicker>
+        <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+          Permission denied
+        </h1>
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#78716c]">
+          This area is for admins only. If you believe this is an error,
+          contact your administrator.
+        </p>
+        <div className="mt-6">
+          <Link href="/" className={btnSecondary}>
+            ← Return to articles
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-            <p className="mt-1 text-sm text-gray-500">Manage all registered users, roles, and accounts.</p>
-          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-5xl px-6 pb-16 pt-10">
+      <BackLink href="/admin">Dashboard</BackLink>
+
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <Kicker>Admin · Users</Kicker>
+          <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+            Users
+          </h1>
+          <p className="mt-1.5 text-sm text-[#78716c]">
+            {users.length} {users.length === 1 ? "account" : "accounts"} · roles
+            and access control.
+          </p>
         </div>
       </div>
 
       {error && (
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-          {error}
+        <div className="mt-5">
+          <FieldError>{error}</FieldError>
         </div>
       )}
 
-      <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-              <tr>
-                <th className="px-6 py-4 font-medium">User</th>
-                <th className="px-6 py-4 font-medium">Role</th>
-                <th className="px-6 py-4 font-medium">Joined</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {users.map((u) => {
-                // @ts-ignore - currentUser might not have explicit userId in type here depending on auth ctx
-                const isSelf = Boolean(currentUser && (currentUser.id === u.id || (currentUser as any).userId === u.id));
-
-                return (
-                  <tr key={u.id} className="transition hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
-                          {u.email.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {u.email} {isSelf && <span className="ml-2 text-xs font-normal text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">You</span>}
-                          </div>
-                          <div className="text-xs text-gray-400 font-mono mt-0.5">{u.id}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <select
-                        value={u.role}
-                        onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                        disabled={isSelf}
-                        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400"
-                      >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {new Date(u.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleDelete(u.id)}
-                        disabled={isSelf}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50 disabled:hover:bg-white"
-                      >
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-              {users.length === 0 && !loading && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                    No users found.
-                  </td>
+      <div className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
+        {users.length === 0 ? (
+          <div className="px-5 py-8">
+            <EmptyState
+              title="No users found"
+              body="No registered accounts matched this view."
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[680px] border-collapse text-left">
+              <thead>
+                <tr className="border-b border-[#e7e5e4] bg-[#fafaf9]">
+                  <th className="px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+                    User
+                  </th>
+                  <th className="px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+                    Role
+                  </th>
+                  <th className="hidden px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e] sm:table-cell">
+                    Joined
+                  </th>
+                  <th className="px-5 py-2.5 text-right text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+                    Actions
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-[#f0eeec]">
+                {users.map((u) => {
+                  // @ts-ignore - shape varies by backend version
+                  const isSelf = Boolean(currentUser && (currentUser.id === u.id || (currentUser as any).userId === u.id));
+
+                  return (
+                    <tr key={u.id} className="transition-colors hover:bg-[#fafaf9]">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <span
+                            aria-hidden="true"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f5f5f4] text-xs font-bold text-[#57534e]"
+                          >
+                            {u.email.charAt(0).toUpperCase()}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="flex flex-wrap items-center gap-2 text-[13.5px] font-semibold text-[#1c1917]">
+                              <span className="truncate">{u.email}</span>
+                              {isSelf && <Badge tone="accent">You</Badge>}
+                            </span>
+                            <span className="mt-0.5 block truncate font-mono text-[11px] text-[#a8a29e]">
+                              {u.id}
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <select
+                          value={u.role}
+                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                          disabled={isSelf}
+                          aria-label={`Role for ${u.email}`}
+                          className="tynk-input h-9 cursor-pointer text-[13px] disabled:cursor-not-allowed disabled:bg-[#f5f5f4] disabled:text-[#a8a29e]"
+                        >
+                          <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </td>
+                      <td className="hidden whitespace-nowrap px-5 py-3.5 text-[13px] text-[#78716c] sm:table-cell">
+                        {formatDate(u.createdAt)}
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(u.id)}
+                          disabled={isSelf}
+                          className={
+                            btnSmallDanger +
+                            " cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+                          }
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

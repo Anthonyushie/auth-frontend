@@ -6,10 +6,15 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import { AxiosError } from "axios";
 import ArticleManager from "@/components/ArticleManager";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import {
+  BackLink,
+  Badge,
+  CheckIcon,
+  EmptyState,
+  Kicker,
+  PageHeader,
+  btnSecondary,
+} from "@/components/ui";
 
 interface AdminUser {
   userId: string;
@@ -29,37 +34,28 @@ interface DashboardData {
     adminUser?: AdminUser;
     metrics?: Metrics;
   };
-  // Allow flat fallback shapes
   adminUser?: AdminUser;
   metrics?: Metrics;
 }
 
-// ---------------------------------------------------------------------------
-// Helper: human-readable labels for security protocol codes
-// ---------------------------------------------------------------------------
-
 const PROTOCOL_META: Record<string, { label: string; description: string }> = {
   JWT_ACCESS_15M: {
-    label: "JWT Access (15 min)",
-    description: "Short-lived access tokens expire every 15 minutes",
+    label: "JWT access · 15 min",
+    description: "Short-lived access tokens, in-memory only",
   },
   REFRESH_ROTATION: {
-    label: "Refresh Rotation",
-    description: "Refresh tokens are rotated on every use",
+    label: "Refresh rotation",
+    description: "Refresh tokens rotate on every use",
   },
   REUSE_DETECTION: {
-    label: "Reuse Detection",
-    description: "Detects and blocks stolen refresh token reuse",
+    label: "Reuse detection",
+    description: "Stolen-token reuse is detected and blocked",
   },
   RBAC: {
     label: "RBAC",
-    description: "Role-Based Access Control enforcement",
+    description: "Role-based access control enforced",
   },
 };
-
-// ---------------------------------------------------------------------------
-// Page Component
-// ---------------------------------------------------------------------------
 
 export default function AdminDashboardPage() {
   const { loading: authLoading } = useAuth();
@@ -77,13 +73,9 @@ export default function AdminDashboardPage() {
         setDashboard(data);
       } catch (err) {
         const axiosErr = err as AxiosError;
-
-        // Explicitly handle 403 — user is authenticated but lacks the
-        // admin role. Show a permission-denied component instead of crashing.
         if (axiosErr.response?.status === 403) {
           setForbidden(true);
         }
-        // 401 is handled by the response interceptor (redirect to /login).
       } finally {
         setLoading(false);
       }
@@ -92,23 +84,16 @@ export default function AdminDashboardPage() {
     fetchDashboard();
   }, [authLoading]);
 
-  // -----------------------------------------------------------------------
-  // Loading Skeleton
-  // -----------------------------------------------------------------------
-
   if (authLoading || loading) {
     return (
-      <div className="mx-auto max-w-3xl animate-pulse space-y-6 py-12">
-        <div className="h-8 w-56 rounded bg-gray-200" />
-        <div className="h-24 rounded-2xl bg-gray-200" />
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-28 rounded-2xl border border-gray-200 bg-white p-6"
-            >
-              <div className="h-4 w-20 rounded bg-gray-200" />
-              <div className="mt-4 h-6 w-14 rounded bg-gray-200" />
+      <div className="mx-auto max-w-5xl px-6 pb-16 pt-10">
+        <div className="tynk-skeleton h-3 w-16 rounded" />
+        <div className="tynk-skeleton mt-3 h-8 w-56 rounded-md" />
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-lg border border-[#e7e5e4] p-5">
+              <div className="tynk-skeleton h-3 w-24 rounded" />
+              <div className="tynk-skeleton mt-3 h-6 w-20 rounded" />
             </div>
           ))}
         </div>
@@ -116,215 +101,145 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // -----------------------------------------------------------------------
-  // 403 — Permission Denied
-  // -----------------------------------------------------------------------
-
   if (forbidden) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="max-w-md rounded-2xl border border-red-200 bg-red-50 p-10 text-center shadow-sm">
-          {/* Shield icon */}
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            <svg
-              className="h-8 w-8 text-red-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v3.75m0-10.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.75h-.152c-3.196 0-6.1-1.25-8.25-3.286ZM12 15.75h.007v.008H12v-.008Z"
-              />
-            </svg>
-          </div>
-
-          <h2 className="mt-5 text-xl font-bold text-red-800">
-            Permission Denied
-          </h2>
-          <p className="mt-2 text-sm text-red-600">
-            Admins Only — You do not have the required permissions to access
-            this dashboard. Please contact your administrator if you believe
-            this is an error.
-          </p>
+      <div className="mx-auto max-w-2xl px-6 pb-16 pt-14">
+        <Kicker>403 · Restricted</Kicker>
+        <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+          Permission denied
+        </h1>
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#78716c]">
+          This area is for admins only. If you believe this is an error,
+          contact your administrator.
+        </p>
+        <div className="mt-6">
+          <Link href="/" className={btnSecondary}>
+            ← Return to articles
+          </Link>
         </div>
       </div>
     );
   }
 
-  // -----------------------------------------------------------------------
-  // Resolve nested data (handle both `data.data.x` and flat `data.x`)
-  // -----------------------------------------------------------------------
-
   const adminUser: AdminUser | undefined =
     dashboard?.data?.adminUser ?? dashboard?.adminUser;
   const metrics: Metrics | undefined =
     dashboard?.data?.metrics ?? dashboard?.metrics;
-  const message = dashboard?.message ?? "Welcome to the Admin Dashboard!";
 
   const systemStatus = metrics?.systemStatus ?? "unknown";
   const protocols = metrics?.activeSecurityProtocols ?? [];
-
   const isHealthy = systemStatus.toLowerCase() === "healthy";
 
-  // -----------------------------------------------------------------------
-  // Dashboard Content
-  // -----------------------------------------------------------------------
-
   return (
-    <div className="mx-auto max-w-3xl py-12">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            System overview and security status.
-          </p>
-        </div>
-        <Link
-          href="/admin/users"
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-        >
-          Manage Users
-        </Link>
-      </div>
+    <div className="mx-auto max-w-5xl px-6 pb-16 pt-10">
+      <PageHeader
+        kicker="Admin"
+        title="Dashboard"
+        lede="System status, security posture, and publishing controls."
+        action={
+          <Link href="/admin/users" className={btnSecondary}>
+            Manage users
+          </Link>
+        }
+      />
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Welcome Banner                                                     */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="mt-6 flex items-center gap-4 rounded-2xl border border-indigo-100 bg-indigo-50 px-6 py-5">
-        {/* Avatar */}
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-lg font-bold text-white">
-          {adminUser?.email?.charAt(0).toUpperCase() ?? "A"}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-lg font-semibold text-indigo-900">{message}</p>
-          {adminUser && (
-            <p className="mt-0.5 truncate text-sm text-indigo-600">
-              Signed in as{" "}
-              <span className="font-medium">{adminUser.email}</span>
-            </p>
-          )}
-        </div>
-        {adminUser && (
-          <span className="inline-flex items-center rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
-            {adminUser.role}
-          </span>
-        )}
-      </div>
-
-      {/* ----------------------------------------------------------------- */}
-      {/* Stats Cards                                                        */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        {/* System Status */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
-            System Status
+      {/* Overview */}
+      <div className="mt-7 grid gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border border-[#e7e5e4] bg-white p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+            System
           </p>
-          <div className="mt-3 flex items-center gap-2">
+          <p className="mt-2.5 flex items-center gap-2 text-[15px] font-bold capitalize text-[#1c1917]">
             <span
-              className={`inline-block h-3 w-3 rounded-full ${
-                isHealthy ? "bg-green-500" : "bg-red-500"
-              }`}
+              aria-hidden="true"
+              className={`h-2 w-2 rounded-full ${isHealthy ? "bg-[#16a34a]" : "bg-[#dc2626]"}`}
             />
-            <span
-              className={`text-lg font-bold capitalize ${
-                isHealthy ? "text-green-700" : "text-red-700"
-              }`}
-            >
-              {systemStatus}
-            </span>
-          </div>
-        </div>
-
-        {/* Active Protocols */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
-            Security Protocols
+            {systemStatus}
           </p>
-          <p className="mt-3 text-3xl font-bold text-gray-900">
+        </div>
+        <div className="rounded-lg border border-[#e7e5e4] bg-white p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+            Protocols
+          </p>
+          <p className="mt-2 text-[22px] font-extrabold tracking-tight text-[#1c1917]">
             {protocols.length}
+            <span className="ml-1.5 align-middle text-xs font-semibold text-[#78716c]">
+              active
+            </span>
           </p>
-          <p className="mt-0.5 text-xs text-gray-500">active</p>
         </div>
-
-        {/* Admin User ID */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
-            Admin ID
+        <div className="rounded-lg border border-[#e7e5e4] bg-white p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+            Signed in
           </p>
-          <p
-            className="mt-3 truncate text-sm font-mono font-medium text-gray-700"
-            title={adminUser?.userId}
-          >
-            {adminUser?.userId
-              ? `${adminUser.userId.slice(0, 8)}…`
-              : "—"}
-          </p>
-          <p className="mt-0.5 text-xs text-gray-500">
+          <p className="mt-2 truncate text-[13.5px] font-bold text-[#1c1917]">
             {adminUser?.email ?? "—"}
           </p>
+          <div className="mt-1.5">
+            <Badge tone="dark">{adminUser?.role ?? "admin"}</Badge>
+          </div>
         </div>
       </div>
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Security Protocols Detail                                          */}
-      {/* ----------------------------------------------------------------- */}
+      {/* Protocols */}
       {protocols.length > 0 && (
-        <div className="mt-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="border-b border-gray-100 px-6 py-4">
-            <h2 className="text-sm font-semibold text-gray-900">
-              Active Security Protocols
-            </h2>
+        <section aria-label="Security protocols" className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4]">
+          <div className="border-b border-[#e7e5e4] bg-[#fafaf9] px-5 py-2.5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+              Active security protocols
+            </p>
           </div>
-          <div className="divide-y divide-gray-100">
+          <ul className="divide-y divide-[#f0eeec]">
             {protocols.map((code) => {
               const meta = PROTOCOL_META[code];
               return (
-                <div
-                  key={code}
-                  className="flex items-center gap-4 px-6 py-4"
-                >
-                  {/* Check circle icon */}
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100">
-                    <svg
-                      className="h-4 w-4 text-green-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900">
-                      {meta?.label ?? code}
-                    </p>
-                    {meta?.description && (
-                      <p className="mt-0.5 text-xs text-gray-500">
-                        {meta.description}
-                      </p>
-                    )}
-                  </div>
-                  <span className="rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">
-                    Active
+                <li key={code} className="flex items-center gap-3.5 px-5 py-3.5">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f0fdf4] text-[#15803d]">
+                    <CheckIcon className="h-3.5 w-3.5" />
                   </span>
-                </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13.5px] font-semibold text-[#1c1917]">
+                      {meta?.label ?? code}
+                    </span>
+                    {meta?.description && (
+                      <span className="mt-0.5 block text-xs text-[#78716c]">
+                        {meta.description}
+                      </span>
+                    )}
+                  </span>
+                  <Badge tone="success">On</Badge>
+                </li>
               );
             })}
-          </div>
+          </ul>
+        </section>
+      )}
+
+      {/* Content */}
+      <div className="mt-10 border-b border-[#e7e5e4] pb-3">
+        <h2 className="text-[15px] font-bold tracking-[-0.01em] text-[#1c1917]">
+          Content
+        </h2>
+        <p className="mt-0.5 text-[13px] text-[#78716c]">
+          Publish and maintain paywalled stories.
+        </p>
+      </div>
+      <div className="mt-5">
+        <ArticleManager />
+      </div>
+
+      <div className="mt-8">
+        <BackLink href="/">View public feed</BackLink>
+      </div>
+
+      {dashboard && !adminUser && !metrics && (
+        <div className="mt-6">
+          <EmptyState
+            title="No dashboard data"
+            body="The admin endpoint returned successfully but included no overview data."
+          />
         </div>
       )}
-      <ArticleManager />
     </div>
   );
 }

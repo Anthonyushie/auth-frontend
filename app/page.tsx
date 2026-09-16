@@ -7,6 +7,19 @@ import { useAuth } from "@/context/AuthContext";
 import { useSubscription } from "@/context/SubscriptionContext";
 import { apiRoot } from "@/lib/axios";
 import type { ArticleListItem } from "@/types";
+import { Badge, EmptyState, LockIcon, PageHeader, btnPrimary } from "@/components/ui";
+
+function formatDate(value: string) {
+  try {
+    return new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return value;
+  }
+}
 
 export default function HomePage() {
   const { user, loading: authLoading } = useAuth();
@@ -42,81 +55,127 @@ export default function HomePage() {
 
   if (authLoading || (!user && loading)) {
     return (
-      <div className="mx-auto max-w-2xl animate-pulse space-y-4 py-12">
-        <div className="h-8 w-40 rounded bg-gray-200" />
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-20 rounded-xl bg-gray-100" />
-        ))}
+      <div className="mx-auto max-w-2xl px-6 pb-16 pt-10">
+        <div className="tynk-skeleton h-3 w-24 rounded" />
+        <div className="tynk-skeleton mt-3 h-8 w-56 rounded-md" />
+        <div className="tynk-skeleton mt-3 h-4 w-80 max-w-full rounded" />
+        <div className="mt-8 border-t border-[#e7e5e4]">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="border-b border-[#e7e5e4] py-6">
+              <div className="tynk-skeleton h-5 w-3/4 rounded" />
+              <div className="tynk-skeleton mt-3 h-3.5 w-44 rounded" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-12">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Latest stories</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {hasAccess
-              ? "You have full access — happy reading."
-              : "Subscribe for ₦5,000/month to unlock full stories."}
+    <div className="mx-auto max-w-2xl px-6 pb-16 pt-10">
+      <PageHeader
+        kicker="Publication"
+        title="Latest stories"
+        lede={
+          hasAccess
+            ? "Full access — every story below is open to you."
+            : "Independent writing, published regularly. Subscribe for ₦5,000/month to read everything in full."
+        }
+      />
+
+      {!hasAccess && user && !loading && articles.length > 0 && (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#e7e5e4] bg-[#fafaf9] px-4 py-3">
+          <p className="text-[13px] font-medium text-[#57534e]">
+            <span className="font-bold text-[#1c1917]">₦5,000/mo</span>
+            <span className="mx-2 text-[#d6d3d1]">·</span>
+            One plan, every story unlocked.
           </p>
-        </div>
-        {!hasAccess && user && (
           <Link
             href="/subscribe"
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+            className="inline-flex h-8 items-center rounded-md bg-[#1c1917] px-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#ff751f]"
           >
             Subscribe
           </Link>
+        </div>
+      )}
+
+      <div className="mt-2">
+        {loading ? (
+          <div className="border-t border-[#e7e5e4]">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="border-b border-[#e7e5e4] py-6">
+                <div className="tynk-skeleton h-5 w-3/4 rounded" />
+                <div className="tynk-skeleton mt-3 h-3.5 w-44 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : articles.length === 0 ? (
+          <div className="mt-6">
+            <EmptyState
+              title="No stories yet"
+              body="Nothing has been published. Check back soon — new stories appear here first."
+            />
+          </div>
+        ) : (
+          <>
+            <ol className="mt-2 border-t border-[#e7e5e4]">
+              {articles.map((a) => {
+                const locked = !a.hasAccess && !hasAccess;
+                return (
+                  <li key={a.id} className="border-b border-[#e7e5e4]">
+                    <Link
+                      href={`/articles/${a.slug}`}
+                      className="group flex items-start justify-between gap-5 py-6"
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-[17px] font-bold leading-snug tracking-[-0.015em] text-[#1c1917] transition-colors duration-150 group-hover:text-[#ff751f]">
+                          {a.title}
+                        </span>
+                        <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#78716c]">
+                          <span className="font-medium text-[#57534e]">
+                            {a.authorEmail ?? "Tynk editorial"}
+                          </span>
+                          <span aria-hidden="true" className="text-[#d6d3d1]">
+                            ·
+                          </span>
+                          <time>{formatDate(a.createdAt)}</time>
+                        </span>
+                      </span>
+                      <span className="flex shrink-0 items-center gap-2 pt-1">
+                        {locked ? (
+                          <Badge tone="neutral">
+                            <LockIcon />
+                            Locked
+                          </Badge>
+                        ) : (
+                          <Badge tone="accent">Open</Badge>
+                        )}
+                        <span
+                          aria-hidden="true"
+                          className="hidden text-[15px] text-[#d6d3d1] transition-all duration-150 group-hover:translate-x-0.5 group-hover:text-[#ff751f] sm:inline"
+                        >
+                          →
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="mt-4 text-xs font-medium text-[#a8a29e]">
+              {articles.length} {articles.length === 1 ? "story" : "stories"}
+            </p>
+          </>
         )}
       </div>
 
-      <div className="mt-6 space-y-3">
-        {loading ? (
-          [1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100" />
-          ))
-        ) : articles.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 px-6 py-12 text-center">
-            <p className="text-sm text-gray-400">
-              No stories yet. Check back soon.
-            </p>
-          </div>
-        ) : (
-          articles.map((a) => {
-            const locked = !a.hasAccess && !hasAccess;
-            return (
-              <Link
-                key={a.id}
-                href={`/articles/${a.slug}`}
-                className="group block rounded-xl border border-gray-200 bg-white px-5 py-4 shadow-sm transition hover:shadow-md"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h2 className="truncate text-base font-semibold text-gray-900 group-hover:text-indigo-600">
-                      {a.title}
-                    </h2>
-                    <p className="mt-1 text-xs text-gray-500">
-                      {a.authorEmail ?? "Staff"} ·{" "}
-                      {new Date(a.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <span
-                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
-                      locked
-                        ? "bg-amber-50 text-amber-700"
-                        : "bg-green-50 text-green-700"
-                    }`}
-                  >
-                    {locked ? "🔒 Locked" : "Open"}
-                  </span>
-                </div>
-              </Link>
-            );
-          })
-        )}
-      </div>
+      {!hasAccess && user && !loading && articles.length === 0 && (
+        <div className="mt-6">
+          <Link href="/subscribe" className={btnPrimary}>
+            Subscribe — ₦5,000/mo
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

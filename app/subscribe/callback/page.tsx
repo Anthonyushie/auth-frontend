@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { apiRoot } from "@/lib/axios";
 import { useSubscription } from "@/context/SubscriptionContext";
 import { AxiosError } from "axios";
+import { Badge, CheckIcon, Kicker, btnPrimary, btnSecondary } from "@/components/ui";
 
 function CallbackInner() {
   const searchParams = useSearchParams();
@@ -15,7 +16,7 @@ function CallbackInner() {
   const [state, setState] = useState<"verifying" | "success" | "failed">(
     "verifying"
   );
-  const [message, setMessage] = useState("Verifying your payment…");
+  const [message, setMessage] = useState("Confirming your payment with Flutterwave…");
 
   useEffect(() => {
     const transactionId = searchParams.get("transaction_id");
@@ -41,7 +42,7 @@ function CallbackInner() {
         });
         await refreshStatus();
         setState("success");
-        setMessage("Subscription activated! Redirecting…");
+        setMessage("Your subscription is active. Taking you back to stories…");
         setTimeout(() => router.push("/"), 1500);
       } catch (err) {
         const axiosErr = err as AxiosError<any>;
@@ -58,35 +59,39 @@ function CallbackInner() {
   }, [searchParams]);
 
   return (
-    <div className="mx-auto max-w-md py-20 text-center">
-      <div
-        className={`rounded-2xl border p-10 shadow-sm ${
-          state === "success"
-            ? "border-green-200 bg-green-50"
-            : state === "failed"
-            ? "border-red-200 bg-red-50"
-            : "border-gray-200 bg-white"
-        }`}
-      >
-        <h1 className="text-lg font-bold text-gray-900">
-          {state === "verifying" && "Verifying payment…"}
-          {state === "success" && "Subscribed ✓"}
-          {state === "failed" && "Verification failed"}
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">{message}</p>
+    <div className="mx-auto max-w-[480px] px-6 pb-16 pt-14">
+      <Kicker>Checkout</Kicker>
+      <h1 className="mt-2 text-[24px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+        {state === "verifying" && "Verifying payment…"}
+        {state === "success" && "Payment confirmed"}
+        {state === "failed" && "Verification failed"}
+      </h1>
+
+      <div className="mt-6 rounded-lg border border-[#e7e5e4] p-6">
+        <div className="flex items-center gap-3">
+          {state === "verifying" && (
+            <span
+              aria-hidden="true"
+              className="h-5 w-5 animate-spin rounded-full border-2 border-[#e7e5e4] border-t-[#ff751f]"
+            />
+          )}
+          {state === "success" && (
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f0fdf4] text-[#15803d]">
+              <CheckIcon />
+            </span>
+          )}
+          {state === "failed" && <Badge tone="danger">Failed</Badge>}
+          {state === "success" && <Badge tone="success">Active</Badge>}
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-[#57534e]">{message}</p>
+
         {state === "failed" && (
-          <div className="mt-6 flex justify-center gap-3">
-            <Link
-              href="/subscribe"
-              className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-            >
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link href="/subscribe" className={btnPrimary + " flex-1"}>
               Try again
             </Link>
-            <Link
-              href="/"
-              className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-medium text-gray-600"
-            >
-              Feed
+            <Link href="/" className={btnSecondary + " flex-1"}>
+              Back to stories
             </Link>
           </div>
         )}
