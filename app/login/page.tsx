@@ -1,15 +1,25 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, FormEvent, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AxiosError } from "axios";
 import { FieldError, Kicker, btnPrimary } from "@/components/ui";
 
-export default function LoginPage() {
+function getSafeNext(value: string | null): string {
+  // Only allow internal paths to avoid open-redirects.
+  // Used by /subscribe/callback? -> /login?next=<callback> re-login flow.
+  if (!value) return "/profile";
+  if (!value.startsWith("/") || value.startsWith("//")) return "/profile";
+  return value;
+}
+
+function LoginInner() {
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = getSafeNext(searchParams.get("next"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +33,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push("/profile");
+      router.push(next);
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       const status = axiosErr.response?.status;
@@ -138,5 +148,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginInner />
+    </Suspense>
   );
 }

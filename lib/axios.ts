@@ -94,6 +94,9 @@ const attachInterceptors = (client: AxiosInstance) => {
 
     async (error) => {
       const originalRequest = error.config;
+      if (!originalRequest) {
+        return Promise.reject(error);
+      }
 
       // Only attempt refresh on 401 AND if we haven't already retried this
       const url = originalRequest.url || "";
@@ -101,6 +104,15 @@ const attachInterceptors = (client: AxiosInstance) => {
         url.includes("/login") ||
         url.includes("/register") ||
         url.includes("/refresh");
+
+      // Opt-out flag for flows that handle auth failure themselves
+      // (e.g. /subscribe/callback must NOT hard-redirect to /login —
+      // it shows "session expired, log in again" instead so a successful
+      // payment is never masked as a verification failure).
+      // Usage: apiRoot.get("/payments/verify", { skipAuthRedirect: true } as any)
+      const skipAuthRedirect =
+        (originalRequest as any).skipAuthRedirect === true ||
+        url.includes("/payments/verify");
 
       // Only attempt refresh on 401 for protected API requests, not on auth routes themselves.
       if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
@@ -136,12 +148,15 @@ const attachInterceptors = (client: AxiosInstance) => {
           return client(originalRequest);
         } catch (refreshError) {
           // Refresh failed — token is invalid, expired, or reuse was detected.
-          // Reject all queued requests and redirect to login.
+          // Reject all queued requests. Only hard-redirect to /login when the
+          // caller hasn't opted out (see skipAuthRedirect above).
           processQueue(refreshError, null);
           setAccessToken(null);
 
           // Only redirect on the client (avoid crashing during SSR).
-          if (typeof window !== "undefined") {
+          // Skipped for payment verification so the callback page can explain:
+          // "payment may have succeeded — please log in again".
+          if (typeof window !== "undefined" && !skipAuthRedirect) {
             window.location.href = "/login";
           }
 
