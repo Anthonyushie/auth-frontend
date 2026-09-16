@@ -39,11 +39,11 @@ export default function AdminArticlesPage() {
       <div className="mx-auto max-w-5xl px-6 pb-16 pt-10">
         <div className="tynk-skeleton h-3 w-28 rounded" />
         <div className="tynk-skeleton mt-3 h-8 w-56 rounded-md" />
-        <div className="mt-6 rounded-lg border border-[#e7e5e4] p-5">
+        <div className="mt-6 rounded-lg border border-[#e7e5e4] dark:border-[#292524] p-5">
           <div className="tynk-skeleton h-4 w-1/3 rounded" />
           <div className="tynk-skeleton mt-3 h-24 w-full rounded-md" />
         </div>
-        <div className="mt-4 space-y-0 divide-y divide-[#f0eeec] rounded-lg border border-[#e7e5e4]">
+        <div className="mt-4 space-y-0 divide-y divide-[#f0eeec] dark:divide-[#292524] rounded-lg border border-[#e7e5e4] dark:border-[#292524]">
           {[1, 2, 3].map((i) => (
             <div key={i} className="px-5 py-4">
               <div className="tynk-skeleton h-4 w-2/3 rounded" />
@@ -59,10 +59,10 @@ export default function AdminArticlesPage() {
     return (
       <div className="mx-auto max-w-2xl px-6 pb-16 pt-14">
         <Kicker>403 · Restricted</Kicker>
-        <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+        <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
           Permission denied
         </h1>
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#78716c]">
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#78716c] dark:text-[#a8a29e]">
           This area is for admins only. If you believe this is an error,
           contact your administrator.
         </p>

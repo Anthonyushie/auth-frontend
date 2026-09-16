@@ -44,16 +44,16 @@ export default function RegisterPage() {
   return (
     <div className="mx-auto max-w-[440px] px-6 pb-16 pt-14">
       <Kicker>Create account</Kicker>
-      <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+      <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
         Join Tynk
       </h1>
-      <p className="mt-1.5 text-sm leading-relaxed text-[#78716c]">
+      <p className="mt-1.5 text-sm leading-relaxed text-[#78716c] dark:text-[#a8a29e]">
         One free account. Subscribe later for ₦5,000/month to unlock every story.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="mt-7 rounded-lg border border-[#e7e5e4] bg-white p-6"
+        className="mt-7 rounded-lg border border-[#e7e5e4] bg-white p-6 dark:border-[#292524] dark:bg-[#1c1917]"
       >
         {error && (
           <div className="mb-5">
@@ -92,7 +92,7 @@ export default function RegisterPage() {
             className="tynk-input"
             placeholder="Minimum 6 characters"
           />
-          <p className="mt-1.5 text-xs text-[#a8a29e]">
+          <p className="mt-1.5 text-xs text-[#a8a29e] dark:text-[#78716c]">
             Minimum 6 characters.
           </p>
         </div>
@@ -132,11 +132,11 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-5 text-center text-sm text-[#78716c]">
+      <p className="mt-5 text-center text-sm text-[#78716c] dark:text-[#a8a29e]">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-semibold text-[#1c1917] underline decoration-[#ff751f] decoration-2 underline-offset-4 transition-colors hover:text-[#ff751f]"
+          className="font-semibold text-[#1c1917] underline decoration-[#ff751f] decoration-2 underline-offset-4 transition-colors hover:text-[#ff751f] dark:text-[#fafaf9]"
         >
           Sign in
         </Link>

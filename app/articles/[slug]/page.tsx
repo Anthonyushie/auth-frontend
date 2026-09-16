@@ -79,7 +79,7 @@ export default function ArticleDetailPage() {
         <div className="tynk-skeleton mt-5 h-9 w-4/5 rounded-md" />
         <div className="tynk-skeleton mt-3 h-9 w-3/5 rounded-md" />
         <div className="tynk-skeleton mt-5 h-4 w-52 rounded" />
-        <div className="mt-8 space-y-3 border-t border-[#e7e5e4] pt-8">
+        <div className="mt-8 space-y-3 border-t border-[#e7e5e4] dark:border-[#292524] pt-8">
           <div className="tynk-skeleton h-4 w-full rounded" />
           <div className="tynk-skeleton h-4 w-full rounded" />
           <div className="tynk-skeleton h-4 w-2/3 rounded" />
@@ -99,38 +99,38 @@ export default function ArticleDetailPage() {
             Members only
           </Badge>
           {article?.createdAt && (
-            <span className="text-[13px] text-[#78716c]">
+            <span className="text-[13px] text-[#78716c] dark:text-[#a8a29e]">
               {formatDate(article.createdAt)}
             </span>
           )}
         </div>
 
-        <h1 className="mt-4 text-[30px] font-extrabold leading-[1.18] tracking-[-0.025em] text-[#1c1917] sm:text-[36px]">
+        <h1 className="mt-4 text-[30px] font-extrabold leading-[1.18] tracking-[-0.025em] text-[#1c1917] dark:text-[#fafaf9] sm:text-[36px]">
           {article?.title ?? "This story is for subscribers"}
         </h1>
-        <p className="mt-3 text-[14px] text-[#78716c]">
+        <p className="mt-3 text-[14px] text-[#78716c] dark:text-[#a8a29e]">
           By {article?.authorEmail ?? "Tynk editorial"}
         </p>
 
-        <div className="mt-8 border-t border-[#e7e5e4] pt-8">
-          <div className="rounded-lg border border-[#e7e5e4] bg-[#fafaf9] p-6 sm:p-8">
+        <div className="mt-8 border-t border-[#e7e5e4] dark:border-[#292524] pt-8">
+          <div className="rounded-lg border border-[#e7e5e4] dark:border-[#292524] bg-[#fafaf9] dark:bg-[#1c1917] p-6 sm:p-8">
             <Kicker>Subscription required</Kicker>
-            <h2 className="mt-2 text-[20px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+            <h2 className="mt-2 text-[20px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
               Keep reading with Tynk
             </h2>
-            <p className="mt-2 max-w-md text-[14px] leading-relaxed text-[#57534e]">
+            <p className="mt-2 max-w-md text-[14px] leading-relaxed text-[#57534e] dark:text-[#d6d3d1]">
               This full story is available to subscribers. One plan unlocks
               every article — no per-story fees.
             </p>
 
             <div className="mt-5 flex items-baseline gap-1.5">
-              <span className="text-[28px] font-extrabold tracking-tight text-[#1c1917]">
+              <span className="text-[28px] font-extrabold tracking-tight text-[#1c1917] dark:text-[#fafaf9]">
                 ₦5,000
               </span>
-              <span className="text-sm font-medium text-[#78716c]">/month</span>
+              <span className="text-sm font-medium text-[#78716c] dark:text-[#a8a29e]">/month</span>
             </div>
 
-            <ul className="mt-5 space-y-2.5 border-t border-[#e7e5e4] pt-5 text-[14px] text-[#44403c]">
+            <ul className="mt-5 space-y-2.5 border-t border-[#e7e5e4] dark:border-[#292524] pt-5 text-[14px] text-[#44403c] dark:text-[#d6d3d1]">
               {[
                 "Unlimited full-story reads",
                 "Every article unlocked, no exceptions",
@@ -153,7 +153,7 @@ export default function ArticleDetailPage() {
                 Back to stories
               </Link>
             </div>
-            <p className="mt-4 text-xs text-[#a8a29e]">
+            <p className="mt-4 text-xs text-[#a8a29e] dark:text-[#78716c]">
               Secure payment · Cancel anytime
             </p>
           </div>
@@ -172,27 +172,27 @@ export default function ArticleDetailPage() {
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="accent">Full story</Badge>
           {article.createdAt && (
-            <span className="text-[13px] text-[#78716c]">
+            <span className="text-[13px] text-[#78716c] dark:text-[#a8a29e]">
               {formatDate(article.createdAt)}
             </span>
           )}
         </div>
-        <h1 className="mt-4 text-[30px] font-extrabold leading-[1.18] tracking-[-0.025em] text-[#1c1917] sm:text-[38px]">
+        <h1 className="mt-4 text-[30px] font-extrabold leading-[1.18] tracking-[-0.025em] text-[#1c1917] dark:text-[#fafaf9] sm:text-[38px]">
           {article.title}
         </h1>
-        <div className="mt-4 flex items-center gap-3 border-b border-[#e7e5e4] pb-6">
+        <div className="mt-4 flex items-center gap-3 border-b border-[#e7e5e4] dark:border-[#292524] pb-6">
           <span
             aria-hidden="true"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1c1917] text-[13px] font-bold text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1c1917] text-[13px] font-bold text-white dark:bg-[#fafaf9] dark:text-[#1c1917]"
           >
             {(article.authorEmail ?? "T").charAt(0).toUpperCase()}
           </span>
           <div>
-            <p className="text-[13.5px] font-semibold text-[#1c1917]">
+            <p className="text-[13.5px] font-semibold text-[#1c1917] dark:text-[#fafaf9]">
               {article.authorEmail ?? "Tynk editorial"}
             </p>
             {article.updatedAt && article.updatedAt !== article.createdAt && (
-              <p className="text-xs text-[#a8a29e]">
+              <p className="text-xs text-[#a8a29e] dark:text-[#78716c]">
                 Updated {formatDate(article.updatedAt)}
               </p>
             )}
@@ -205,7 +205,7 @@ export default function ArticleDetailPage() {
         <img
           src={article.coverImageUrl}
           alt={article.title}
-          className="mt-8 aspect-[16/9] w-full rounded-lg border border-[#e7e5e4] object-cover"
+          className="mt-8 aspect-[16/9] w-full rounded-lg border border-[#e7e5e4] dark:border-[#292524] object-cover"
         />
       )}
 
@@ -213,11 +213,11 @@ export default function ArticleDetailPage() {
         <ReactMarkdown>{article.body}</ReactMarkdown>
       </div>
 
-      <footer className="mt-12 flex items-center justify-between border-t border-[#e7e5e4] pt-6">
+      <footer className="mt-12 flex items-center justify-between border-t border-[#e7e5e4] dark:border-[#292524] pt-6">
         <BackLink href="/">All stories</BackLink>
         <Link
           href="/subscribe"
-          className="text-[13px] font-semibold text-[#78716c] transition-colors hover:text-[#ff751f]"
+          className="text-[13px] font-semibold text-[#78716c] dark:text-[#a8a29e] transition-colors hover:text-[#ff751f]"
         >
           Membership
         </Link>

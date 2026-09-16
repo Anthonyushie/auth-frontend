@@ -128,20 +128,20 @@ function CallbackInner() {
   return (
     <div className="mx-auto max-w-[480px] px-6 pb-16 pt-14">
       <Kicker>Checkout</Kicker>
-      <h1 className="mt-2 text-[24px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+      <h1 className="mt-2 text-[24px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
         {title}
       </h1>
 
-      <div className="mt-6 rounded-lg border border-[#e7e5e4] p-6">
+      <div className="mt-6 rounded-lg border border-[#e7e5e4] dark:border-[#292524] p-6 dark:bg-[#1c1917]">
         <div className="flex items-center gap-3">
           {(state === "restoring" || state === "verifying") && (
             <span
               aria-hidden="true"
-              className="h-5 w-5 animate-spin rounded-full border-2 border-[#e7e5e4] border-t-[#ff751f]"
+              className="h-5 w-5 animate-spin rounded-full border-2 border-[#e7e5e4] dark:border-[#292524] border-t-[#ff751f]"
             />
           )}
           {state === "success" && (
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f0fdf4] text-[#15803d]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f0fdf4] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]">
               <CheckIcon />
             </span>
           )}
@@ -152,7 +152,7 @@ function CallbackInner() {
           )}
           {state === "success" && <Badge tone="success">Active</Badge>}
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-[#57534e]">{message}</p>
+        <p className="mt-4 text-sm leading-relaxed text-[#57534e] dark:text-[#d6d3d1]">{message}</p>
 
         {state === "session-expired" && (
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">

@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
         <div className="tynk-skeleton mt-3 h-8 w-56 rounded-md" />
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-lg border border-[#e7e5e4] p-5">
+            <div key={i} className="rounded-lg border border-[#e7e5e4] dark:border-[#292524] p-5">
               <div className="tynk-skeleton h-3 w-24 rounded" />
               <div className="tynk-skeleton mt-3 h-6 w-20 rounded" />
             </div>
@@ -127,10 +127,10 @@ export default function AdminDashboardPage() {
     return (
       <div className="mx-auto max-w-2xl px-6 pb-16 pt-14">
         <Kicker>403 · Restricted</Kicker>
-        <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+        <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
           Permission denied
         </h1>
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#78716c]">
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#78716c] dark:text-[#a8a29e]">
           This area is for admins only. If you believe this is an error,
           contact your administrator.
         </p>
@@ -172,11 +172,11 @@ export default function AdminDashboardPage() {
 
       {/* Overview */}
       <div className="mt-7 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-[#e7e5e4] bg-white p-5">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+        <div className="rounded-lg border border-[#e7e5e4] dark:border-[#292524] bg-white dark:bg-[#1c1917] p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e] dark:text-[#78716c]">
             System
           </p>
-          <p className="mt-2.5 flex items-center gap-2 text-[15px] font-bold capitalize text-[#1c1917]">
+          <p className="mt-2.5 flex items-center gap-2 text-[15px] font-bold capitalize text-[#1c1917] dark:text-[#fafaf9]">
             <span
               aria-hidden="true"
               className={`h-2 w-2 rounded-full ${isHealthy ? "bg-[#16a34a]" : "bg-[#dc2626]"}`}
@@ -184,22 +184,22 @@ export default function AdminDashboardPage() {
             {systemStatus}
           </p>
         </div>
-        <div className="rounded-lg border border-[#e7e5e4] bg-white p-5">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+        <div className="rounded-lg border border-[#e7e5e4] dark:border-[#292524] bg-white dark:bg-[#1c1917] p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e] dark:text-[#78716c]">
             Protocols
           </p>
-          <p className="mt-2 text-[22px] font-extrabold tracking-tight text-[#1c1917]">
+          <p className="mt-2 text-[22px] font-extrabold tracking-tight text-[#1c1917] dark:text-[#fafaf9]">
             {protocols.length}
-            <span className="ml-1.5 align-middle text-xs font-semibold text-[#78716c]">
+            <span className="ml-1.5 align-middle text-xs font-semibold text-[#78716c] dark:text-[#a8a29e]">
               active
             </span>
           </p>
         </div>
-        <div className="rounded-lg border border-[#e7e5e4] bg-white p-5">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+        <div className="rounded-lg border border-[#e7e5e4] dark:border-[#292524] bg-white dark:bg-[#1c1917] p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e] dark:text-[#78716c]">
             Signed in
           </p>
-          <p className="mt-2 truncate text-[13.5px] font-bold text-[#1c1917]">
+          <p className="mt-2 truncate text-[13.5px] font-bold text-[#1c1917] dark:text-[#fafaf9]">
             {adminUser?.email ?? "—"}
           </p>
           <div className="mt-1.5">
@@ -210,26 +210,26 @@ export default function AdminDashboardPage() {
 
       {/* Protocols */}
       {protocols.length > 0 && (
-        <section aria-label="Security protocols" className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4]">
-          <div className="border-b border-[#e7e5e4] bg-[#fafaf9] px-5 py-2.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
+        <section aria-label="Security protocols" className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4] dark:border-[#292524]">
+          <div className="border-b border-[#e7e5e4] dark:border-[#292524] bg-[#fafaf9] dark:bg-[#1c1917] px-5 py-2.5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e] dark:text-[#78716c]">
               Active security protocols
             </p>
           </div>
-          <ul className="divide-y divide-[#f0eeec]">
+          <ul className="divide-y divide-[#f0eeec] dark:divide-[#292524]">
             {protocols.map((code) => {
               const meta = PROTOCOL_META[code];
               return (
                 <li key={code} className="flex items-center gap-3.5 px-5 py-3.5">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f0fdf4] text-[#15803d]">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f0fdf4] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]">
                     <CheckIcon className="h-3.5 w-3.5" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[13.5px] font-semibold text-[#1c1917]">
+                    <span className="block text-[13.5px] font-semibold text-[#1c1917] dark:text-[#fafaf9]">
                       {meta?.label ?? code}
                     </span>
                     {meta?.description && (
-                      <span className="mt-0.5 block text-xs text-[#78716c]">
+                      <span className="mt-0.5 block text-xs text-[#78716c] dark:text-[#a8a29e]">
                         {meta.description}
                       </span>
                     )}
@@ -243,13 +243,13 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Content summary */}
-      <div className="mt-10 border-b border-[#e7e5e4] pb-3">
+      <div className="mt-10 border-b border-[#e7e5e4] dark:border-[#292524] pb-3">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-[15px] font-bold tracking-[-0.01em] text-[#1c1917]">
+            <h2 className="text-[15px] font-bold tracking-[-0.01em] text-[#1c1917] dark:text-[#fafaf9]">
               Content
             </h2>
-            <p className="mt-0.5 text-[13px] text-[#78716c]">
+            <p className="mt-0.5 text-[13px] text-[#78716c] dark:text-[#a8a29e]">
               Publishing lives on its own page now.
             </p>
           </div>
@@ -261,9 +261,9 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
+      <div className="mt-5 overflow-hidden rounded-lg border border-[#e7e5e4] dark:border-[#292524] bg-white dark:bg-[#1c1917]">
         {previewLoading ? (
-          <div className="divide-y divide-[#f0eeec]">
+          <div className="divide-y divide-[#f0eeec] dark:divide-[#292524]">
             {[1, 2, 3].map((i) => (
               <div key={i} className="px-5 py-4">
                 <div className="tynk-skeleton h-4 w-2/3 rounded" />
@@ -273,8 +273,8 @@ export default function AdminDashboardPage() {
           </div>
         ) : articlesPreview.length === 0 ? (
           <div className="px-5 py-6">
-            <p className="text-sm font-semibold text-[#1c1917]">No articles yet</p>
-            <p className="mt-1 text-[13px] text-[#78716c]">
+            <p className="text-sm font-semibold text-[#1c1917] dark:text-[#fafaf9]">No articles yet</p>
+            <p className="mt-1 text-[13px] text-[#78716c] dark:text-[#a8a29e]">
               Publish your first story from the publishing page.
             </p>
             <div className="mt-4">
@@ -285,13 +285,13 @@ export default function AdminDashboardPage() {
           </div>
         ) : (
           <>
-            <ul className="divide-y divide-[#f0eeec]">
+            <ul className="divide-y divide-[#f0eeec] dark:divide-[#292524]">
               {articlesPreview.slice(0, 4).map((a) => (
                 <li key={a.id} className="px-5 py-3.5">
-                  <p className="truncate text-[13.5px] font-semibold text-[#1c1917]">
+                  <p className="truncate text-[13.5px] font-semibold text-[#1c1917] dark:text-[#fafaf9]">
                     {a.title}
                   </p>
-                  <p className="mt-0.5 truncate font-mono text-[11.5px] text-[#a8a29e]">
+                  <p className="mt-0.5 truncate font-mono text-[11.5px] text-[#a8a29e] dark:text-[#78716c]">
                     /{a.slug} ·{" "}
                     {new Date(a.createdAt).toLocaleDateString("en-US", {
                       month: "short",
@@ -302,10 +302,10 @@ export default function AdminDashboardPage() {
                 </li>
               ))}
             </ul>
-            <div className="border-t border-[#e7e5e4] bg-[#fafaf9] px-5 py-3.5">
+            <div className="border-t border-[#e7e5e4] dark:border-[#292524] bg-[#fafaf9] dark:bg-[#1c1917] px-5 py-3.5">
               <Link
                 href="/admin/articles"
-                className="text-[13px] font-semibold text-[#1c1917] transition-colors hover:text-[#ff751f]"
+                className="text-[13px] font-semibold text-[#1c1917] dark:text-[#fafaf9] transition-colors hover:text-[#ff751f]"
               >
                 Open publishing →
               </Link>

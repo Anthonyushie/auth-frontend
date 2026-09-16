@@ -135,13 +135,13 @@ export default function ArticleManager() {
   const editing = Boolean(form.id);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e7e5e4] px-5 py-4">
+    <div className="overflow-hidden rounded-lg border border-[#e7e5e4] dark:border-[#292524] bg-white dark:bg-[#1c1917]">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e7e5e4] dark:border-[#292524] px-5 py-4">
         <div>
-          <h3 className="text-[14px] font-bold tracking-[-0.01em] text-[#1c1917]">
+          <h3 className="text-[14px] font-bold tracking-[-0.01em] text-[#1c1917] dark:text-[#fafaf9]">
             {editing ? "Edit article" : "New article"}
           </h3>
-          <p className="mt-0.5 text-xs text-[#78716c]">
+          <p className="mt-0.5 text-xs text-[#78716c] dark:text-[#a8a29e]">
             Markdown supported · Title min 3 chars · Body min 50 chars
           </p>
         </div>
@@ -150,7 +150,7 @@ export default function ArticleManager() {
         </Badge>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 border-b border-[#e7e5e4] px-5 py-5">
+      <form onSubmit={handleSubmit} className="space-y-4 border-b border-[#e7e5e4] dark:border-[#292524] px-5 py-5">
         {error && <FieldError>{error}</FieldError>}
         {notice && <Notice>{notice}</Notice>}
 
@@ -180,7 +180,7 @@ export default function ArticleManager() {
             rows={7}
             className="tynk-input resize-y font-normal"
           />
-          <p className="mt-1.5 text-xs text-[#a8a29e]">
+          <p className="mt-1.5 text-xs text-[#a8a29e] dark:text-[#78716c]">
             {form.body.trim().length}/50 minimum characters
           </p>
         </div>
@@ -188,7 +188,7 @@ export default function ArticleManager() {
         <div className="grid gap-4 sm:grid-cols-[1fr_160px]">
           <div>
             <label htmlFor="am-cover" className="tynk-label">
-              Cover image URL <span className="font-normal text-[#a8a29e]">(optional)</span>
+              Cover image URL <span className="font-normal text-[#a8a29e] dark:text-[#78716c]">(optional)</span>
             </label>
             <input
               id="am-cover"
@@ -238,13 +238,13 @@ export default function ArticleManager() {
       </form>
 
       <div>
-        <div className="border-b border-[#e7e5e4] bg-[#fafaf9] px-5 py-2.5">
+        <div className="border-b border-[#e7e5e4] dark:border-[#292524] bg-[#fafaf9] dark:bg-[#1c1917] px-5 py-2.5">
           <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
             All articles
           </p>
         </div>
         {loading ? (
-          <div className="divide-y divide-[#f0eeec]">
+          <div className="divide-y divide-[#f0eeec] dark:divide-[#292524]">
             {[1, 2, 3].map((i) => (
               <div key={i} className="px-5 py-4">
                 <div className="tynk-skeleton h-4 w-2/3 rounded" />
@@ -253,21 +253,21 @@ export default function ArticleManager() {
             ))}
           </div>
         ) : articles.length === 0 ? (
-          <p className="px-5 py-8 text-sm text-[#78716c]">
+          <p className="px-5 py-8 text-sm text-[#78716c] dark:text-[#a8a29e]">
             No articles yet. Publish your first story above.
           </p>
         ) : (
-          <ul className="divide-y divide-[#f0eeec]">
+          <ul className="divide-y divide-[#f0eeec] dark:divide-[#292524]">
             {articles.map((a) => (
               <li
                 key={a.id}
-                className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-[#fafaf9]"
+                className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-[#fafaf9] dark:hover:bg-[#292524]"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13.5px] font-semibold text-[#1c1917]">
+                  <p className="truncate text-[13.5px] font-semibold text-[#1c1917] dark:text-[#fafaf9]">
                     {a.title}
                   </p>
-                  <p className="mt-0.5 truncate font-mono text-[11.5px] text-[#a8a29e]">
+                  <p className="mt-0.5 truncate font-mono text-[11.5px] text-[#a8a29e] dark:text-[#78716c]">
                     /{a.slug} · {formatDate(a.createdAt)}
                   </p>
                 </div>

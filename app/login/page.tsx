@@ -54,16 +54,16 @@ function LoginInner() {
   return (
     <div className="mx-auto max-w-[440px] px-6 pb-16 pt-14">
       <Kicker>Sign in</Kicker>
-      <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+      <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
         Welcome back
       </h1>
-      <p className="mt-1.5 text-sm leading-relaxed text-[#78716c]">
+      <p className="mt-1.5 text-sm leading-relaxed text-[#78716c] dark:text-[#a8a29e]">
         Sign in to read, manage your subscription, and continue where you left off.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="mt-7 rounded-lg border border-[#e7e5e4] bg-white p-6"
+        className="mt-7 rounded-lg border border-[#e7e5e4] bg-white p-6 dark:border-[#292524] dark:bg-[#1c1917]"
       >
         {error && (
           <div className="mb-5">
@@ -138,11 +138,11 @@ function LoginInner() {
         </button>
       </form>
 
-      <p className="mt-5 text-center text-sm text-[#78716c]">
+      <p className="mt-5 text-center text-sm text-[#78716c] dark:text-[#a8a29e]">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
-          className="font-semibold text-[#1c1917] underline decoration-[#ff751f] decoration-2 underline-offset-4 transition-colors hover:text-[#ff751f]"
+          className="font-semibold text-[#1c1917] underline decoration-[#ff751f] decoration-2 underline-offset-4 transition-colors hover:text-[#ff751f] dark:text-[#fafaf9]"
         >
           Create one
         </Link>

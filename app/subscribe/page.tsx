@@ -60,17 +60,17 @@ export default function SubscribePage() {
     return (
       <div className="mx-auto max-w-2xl px-6 pb-16 pt-10">
         <BackLink href="/">All stories</BackLink>
-        <div className="mt-6 rounded-lg border border-[#e7e5e4] p-6 sm:p-8">
+        <div className="mt-6 rounded-lg border border-[#e7e5e4] dark:border-[#292524] p-6 sm:p-8 dark:bg-[#1c1917]">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f0fdf4] text-[#15803d]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f0fdf4] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]">
               <CheckIcon />
             </span>
             <Badge tone="success">Active</Badge>
           </div>
-          <h1 className="mt-4 text-[22px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+          <h1 className="mt-4 text-[22px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
             You&apos;re subscribed
           </h1>
-          <p className="mt-1.5 text-sm text-[#57534e]">
+          <p className="mt-1.5 text-sm text-[#57534e] dark:text-[#d6d3d1]">
             {status}
             {currentPeriodEnd
               ? ` · renews by ${new Date(currentPeriodEnd).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
@@ -79,7 +79,7 @@ export default function SubscribePage() {
           <div className="mt-6">
             <Link
               href="/"
-              className="inline-flex h-10 items-center rounded-md bg-[#1c1917] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#ff751f]"
+              className="inline-flex h-10 items-center rounded-md bg-[#1c1917] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#ff751f] dark:bg-[#fafaf9] dark:text-[#1c1917] dark:hover:bg-[#ff751f] dark:hover:text-white"
             >
               Continue reading
             </Link>
@@ -95,23 +95,23 @@ export default function SubscribePage() {
 
       <div className="mt-6">
         <Kicker>Membership</Kicker>
-        <h1 className="mt-2 text-[28px] font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1c1917] sm:text-[32px]">
+        <h1 className="mt-2 text-[28px] font-extrabold leading-[1.15] tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9] sm:text-[32px]">
           One plan. Every story.
         </h1>
-        <p className="mt-2 max-w-lg text-[14.5px] leading-relaxed text-[#78716c]">
+        <p className="mt-2 max-w-lg text-[14.5px] leading-relaxed text-[#78716c] dark:text-[#a8a29e]">
           Support independent writing and get unlimited access. Cancel anytime.
         </p>
       </div>
 
-      <div className="mt-7 rounded-lg border border-[#e7e5e4]">
-        <div className="border-b border-[#e7e5e4] px-6 py-6">
+       <div className="mt-7 rounded-lg border border-[#e7e5e4] dark:border-[#292524] dark:bg-[#1c1917]">
+        <div className="border-b border-[#e7e5e4] dark:border-[#292524] px-6 py-6">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-[34px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+            <span className="text-[34px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
               ₦5,000
             </span>
-            <span className="text-sm font-medium text-[#78716c]">/month</span>
+            <span className="text-sm font-medium text-[#78716c] dark:text-[#a8a29e]">/month</span>
           </div>
-          <ul className="mt-5 space-y-2.5 text-[14px] text-[#44403c]">
+          <ul className="mt-5 space-y-2.5 text-[14px] text-[#44403c] dark:text-[#d6d3d1]">
             {BENEFITS.map((b) => (
               <li key={b} className="flex items-start gap-2.5">
                 <span className="mt-0.5 text-[#ff751f]">
@@ -136,11 +136,11 @@ export default function SubscribePage() {
           >
             {loading ? "Redirecting to Flutterwave…" : "Subscribe with Flutterwave"}
           </button>
-          <p className="mt-3 text-xs leading-relaxed text-[#a8a29e]">
+          <p className="mt-3 text-xs leading-relaxed text-[#a8a29e] dark:text-[#78716c]">
             Secure checkout · Cancel anytime. Powered by Flutterwave (test mode).
           </p>
-          <details className="mt-4 rounded-md bg-[#fafaf9] px-4 py-3 text-xs leading-relaxed text-[#78716c]">
-            <summary className="cursor-pointer font-semibold text-[#57534e]">
+          <details className="mt-4 rounded-md bg-[#fafaf9] dark:bg-[#1c1917] px-4 py-3 text-xs leading-relaxed text-[#78716c] dark:text-[#a8a29e]">
+            <summary className="cursor-pointer font-semibold text-[#57534e] dark:text-[#d6d3d1]">
               Test cards
             </summary>
             <p className="mt-2 font-mono">

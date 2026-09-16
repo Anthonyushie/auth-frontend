@@ -26,8 +26,8 @@ interface ProfileData {
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-6 py-3.5">
-      <dt className="shrink-0 text-[13px] text-[#78716c]">{label}</dt>
-      <dd className="min-w-0 truncate text-right text-[13.5px] font-semibold text-[#1c1917]">
+      <dt className="shrink-0 text-[13px] text-[#78716c] dark:text-[#a8a29e]">{label}</dt>
+      <dd className="min-w-0 truncate text-right text-[13.5px] font-semibold text-[#1c1917] dark:text-[#fafaf9]">
         {value}
       </dd>
     </div>
@@ -73,7 +73,7 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-2xl px-6 pb-16 pt-10">
         <div className="tynk-skeleton h-3 w-20 rounded" />
         <div className="tynk-skeleton mt-3 h-8 w-52 rounded-md" />
-        <div className="mt-6 rounded-lg border border-[#e7e5e4] p-6">
+        <div className="mt-6 rounded-lg border border-[#e7e5e4] p-6 dark:border-[#292524] dark:bg-[#1c1917]">
           <div className="tynk-skeleton h-4 w-2/3 rounded" />
           <div className="tynk-skeleton mt-3 h-4 w-1/2 rounded" />
           <div className="tynk-skeleton mt-3 h-4 w-3/5 rounded" />
@@ -112,32 +112,32 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl px-6 pb-16 pt-10">
       <Kicker>Account</Kicker>
-      <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+      <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
         Your account
       </h1>
-      <p className="mt-1.5 text-sm text-[#78716c]">
+      <p className="mt-1.5 text-sm text-[#78716c] dark:text-[#a8a29e]">
         Profile, role, and subscription in one place.
       </p>
 
       {/* Identity */}
-      <div className="mt-7 flex items-center gap-4 border-y border-[#e7e5e4] py-5">
+      <div className="mt-7 flex items-center gap-4 border-y border-[#e7e5e4] py-5 dark:border-[#292524]">
         <span
           aria-hidden="true"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1c1917] text-[15px] font-bold text-white"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1c1917] text-[15px] font-bold text-white dark:bg-[#fafaf9] dark:text-[#1c1917]"
         >
           {email.charAt(0).toUpperCase()}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-bold tracking-tight text-[#1c1917]">
+          <p className="truncate text-[15px] font-bold tracking-tight text-[#1c1917] dark:text-[#fafaf9]">
             {email}
           </p>
-          <p className="mt-0.5 text-[13px] capitalize text-[#78716c]">{role}</p>
+          <p className="mt-0.5 text-[13px] capitalize text-[#78716c] dark:text-[#a8a29e]">{role}</p>
         </div>
         <Badge tone={role === "admin" ? "dark" : "neutral"}>{role}</Badge>
       </div>
 
       {/* Details */}
-      <section aria-label="Profile details" className="mt-2 divide-y divide-[#f0eeec]">
+      <section aria-label="Profile details" className="mt-2 divide-y divide-[#f0eeec] dark:divide-[#292524]">
         <Row label="Email" value={email} />
         <Row
           label="User ID"
@@ -152,13 +152,13 @@ export default function ProfilePage() {
       </section>
 
       {/* Subscription */}
-      <section aria-label="Subscription" className="mt-8 rounded-lg border border-[#e7e5e4]">
-        <div className="flex items-center justify-between border-b border-[#e7e5e4] px-5 py-3.5">
-          <h2 className="text-[13.5px] font-bold tracking-[-0.01em] text-[#1c1917]">
+      <section aria-label="Subscription" className="mt-8 rounded-lg border border-[#e7e5e4] dark:border-[#292524] dark:bg-[#1c1917]">
+        <div className="flex items-center justify-between border-b border-[#e7e5e4] px-5 py-3.5 dark:border-[#292524]">
+          <h2 className="text-[13.5px] font-bold tracking-[-0.01em] text-[#1c1917] dark:text-[#fafaf9]">
             Subscription
           </h2>
           {subLoading ? (
-            <span className="text-xs font-medium text-[#a8a29e]">Checking…</span>
+            <span className="text-xs font-medium text-[#a8a29e] dark:text-[#78716c]">Checking…</span>
           ) : (
             <Badge tone={hasAccess ? "success" : "neutral"}>
               {hasAccess ? "Active" : "Inactive"}
@@ -168,8 +168,8 @@ export default function ProfilePage() {
         <div className="px-5 py-4">
           {hasAccess ? (
             <>
-              <p className="text-sm leading-relaxed text-[#57534e]">
-                <span className="font-semibold text-[#1c1917]">
+              <p className="text-sm leading-relaxed text-[#57534e] dark:text-[#d6d3d1]">
+                <span className="font-semibold text-[#1c1917] dark:text-[#fafaf9]">
                   {status}
                 </span>
                 {currentPeriodEnd && (
@@ -191,9 +191,9 @@ export default function ProfilePage() {
             </>
           ) : (
             <>
-              <p className="text-sm leading-relaxed text-[#57534e]">
+              <p className="text-sm leading-relaxed text-[#57534e] dark:text-[#d6d3d1]">
                 You don&apos;t have an active subscription.{" "}
-                <span className="font-semibold text-[#1c1917]">₦5,000/mo</span>{" "}
+                <span className="font-semibold text-[#1c1917] dark:text-[#fafaf9]">₦5,000/mo</span>{" "}
                 unlocks every story.
               </p>
               <div className="mt-4">
@@ -213,7 +213,7 @@ export default function ProfilePage() {
             await logout();
             router.push("/login");
           }}
-          className="cursor-pointer text-[13px] font-semibold text-[#78716c] underline decoration-[#e7e5e4] underline-offset-4 transition-colors hover:text-[#ff751f] hover:decoration-[#ff751f]"
+          className="cursor-pointer text-[13px] font-semibold text-[#78716c] underline decoration-[#e7e5e4] underline-offset-4 transition-colors hover:text-[#ff751f] hover:decoration-[#ff751f] dark:text-[#a8a29e] dark:decoration-[#44403c]"
         >
           Sign out
         </button>

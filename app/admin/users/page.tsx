@@ -93,9 +93,9 @@ export default function AdminUsersPage() {
       <div className="mx-auto max-w-5xl px-6 pb-16 pt-10">
         <div className="tynk-skeleton h-3 w-16 rounded" />
         <div className="tynk-skeleton mt-3 h-8 w-56 rounded-md" />
-        <div className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4]">
+        <div className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4] dark:border-[#292524]">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex items-center gap-3 border-b border-[#f0eeec] px-5 py-4 last:border-0">
+            <div key={i} className="flex items-center gap-3 border-b border-[#f0eeec] dark:border-[#292524] px-5 py-4 last:border-0">
               <div className="tynk-skeleton h-8 w-8 rounded-full" />
               <div className="tynk-skeleton h-4 w-48 rounded" />
             </div>
@@ -109,10 +109,10 @@ export default function AdminUsersPage() {
     return (
       <div className="mx-auto max-w-2xl px-6 pb-16 pt-14">
         <Kicker>403 · Restricted</Kicker>
-        <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+        <h1 className="mt-2 text-[26px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
           Permission denied
         </h1>
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#78716c]">
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#78716c] dark:text-[#a8a29e]">
           This area is for admins only. If you believe this is an error,
           contact your administrator.
         </p>
@@ -132,10 +132,10 @@ export default function AdminUsersPage() {
       <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <Kicker>Admin · Users</Kicker>
-          <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.02em] text-[#1c1917]">
+          <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.02em] text-[#1c1917] dark:text-[#fafaf9]">
             Users
           </h1>
-          <p className="mt-1.5 text-sm text-[#78716c]">
+          <p className="mt-1.5 text-sm text-[#78716c] dark:text-[#a8a29e]">
             {users.length} {users.length === 1 ? "account" : "accounts"} · roles
             and access control.
           </p>
@@ -148,7 +148,7 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      <div className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
+      <div className="mt-6 overflow-hidden rounded-lg border border-[#e7e5e4] dark:border-[#292524] bg-white dark:bg-[#1c1917]">
         {users.length === 0 ? (
           <div className="px-5 py-8">
             <EmptyState
@@ -160,7 +160,7 @@ export default function AdminUsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px] border-collapse text-left">
               <thead>
-                <tr className="border-b border-[#e7e5e4] bg-[#fafaf9]">
+                <tr className="border-b border-[#e7e5e4] dark:border-[#292524] bg-[#fafaf9] dark:bg-[#1c1917]">
                   <th className="px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[#a8a29e]">
                     User
                   </th>
@@ -175,27 +175,27 @@ export default function AdminUsersPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f0eeec]">
+              <tbody className="divide-y divide-[#f0eeec] dark:divide-[#292524]">
                 {users.map((u) => {
                   // @ts-ignore - shape varies by backend version
                   const isSelf = Boolean(currentUser && (currentUser.id === u.id || (currentUser as any).userId === u.id));
 
                   return (
-                    <tr key={u.id} className="transition-colors hover:bg-[#fafaf9]">
+                    <tr key={u.id} className="transition-colors hover:bg-[#fafaf9] dark:hover:bg-[#292524]">
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
                           <span
                             aria-hidden="true"
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f5f5f4] text-xs font-bold text-[#57534e]"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f5f5f4] dark:bg-[#292524] text-xs font-bold text-[#57534e] dark:text-[#d6d3d1]"
                           >
                             {u.email.charAt(0).toUpperCase()}
                           </span>
                           <span className="min-w-0">
-                            <span className="flex flex-wrap items-center gap-2 text-[13.5px] font-semibold text-[#1c1917]">
+                            <span className="flex flex-wrap items-center gap-2 text-[13.5px] font-semibold text-[#1c1917] dark:text-[#fafaf9]">
                               <span className="truncate">{u.email}</span>
                               {isSelf && <Badge tone="accent">You</Badge>}
                             </span>
-                            <span className="mt-0.5 block truncate font-mono text-[11px] text-[#a8a29e]">
+                            <span className="mt-0.5 block truncate font-mono text-[11px] text-[#a8a29e] dark:text-[#78716c]">
                               {u.id}
                             </span>
                           </span>
@@ -207,13 +207,13 @@ export default function AdminUsersPage() {
                           onChange={(e) => handleRoleChange(u.id, e.target.value)}
                           disabled={isSelf}
                           aria-label={`Role for ${u.email}`}
-                          className="tynk-input h-9 cursor-pointer text-[13px] disabled:cursor-not-allowed disabled:bg-[#f5f5f4] disabled:text-[#a8a29e]"
+                          className="tynk-input h-9 cursor-pointer text-[13px] disabled:cursor-not-allowed disabled:bg-[#f5f5f4] dark:disabled:bg-[#292524] disabled:text-[#a8a29e]"
                         >
                           <option value="user">User</option>
                           <option value="admin">Admin</option>
                         </select>
                       </td>
-                      <td className="hidden whitespace-nowrap px-5 py-3.5 text-[13px] text-[#78716c] sm:table-cell">
+                      <td className="hidden whitespace-nowrap px-5 py-3.5 text-[13px] text-[#78716c] dark:text-[#a8a29e] sm:table-cell">
                         {formatDate(u.createdAt)}
                       </td>
                       <td className="px-5 py-3.5 text-right">
