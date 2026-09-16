@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import api from "@/lib/axios";
+import api, { apiRoot } from "@/lib/axios";
 import { AxiosError } from "axios";
-import ArticleManager from "@/components/ArticleManager";
+import type { ArticleListItem } from "@/types";
 import {
   BackLink,
   Badge,
@@ -63,6 +63,8 @@ export default function AdminDashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [forbidden, setForbidden] = useState(false);
+  const [articlesPreview, setArticlesPreview] = useState<ArticleListItem[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(true);
 
   useEffect(() => {
     if (authLoading) return;
@@ -82,6 +84,26 @@ export default function AdminDashboardPage() {
     };
 
     fetchDashboard();
+  }, [authLoading]);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    const fetchPreview = async () => {
+      try {
+        const { data } = await apiRoot.get("/articles", {
+          params: { status: "all" },
+        });
+        const list = Array.isArray(data.data) ? data.data : [];
+        setArticlesPreview(list);
+      } catch {
+        setArticlesPreview([]);
+      } finally {
+        setPreviewLoading(false);
+      }
+    };
+
+    fetchPreview();
   }, [authLoading]);
 
   if (authLoading || loading) {
@@ -135,11 +157,16 @@ export default function AdminDashboardPage() {
       <PageHeader
         kicker="Admin"
         title="Dashboard"
-        lede="System status, security posture, and publishing controls."
+        lede="System status, security posture, and team management."
         action={
-          <Link href="/admin/users" className={btnSecondary}>
-            Manage users
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/admin/articles" className={btnSecondary}>
+              Open publishing →
+            </Link>
+            <Link href="/admin/users" className={btnSecondary}>
+              Manage users
+            </Link>
+          </div>
         }
       />
 
@@ -215,17 +242,76 @@ export default function AdminDashboardPage() {
         </section>
       )}
 
-      {/* Content */}
+      {/* Content summary */}
       <div className="mt-10 border-b border-[#e7e5e4] pb-3">
-        <h2 className="text-[15px] font-bold tracking-[-0.01em] text-[#1c1917]">
-          Content
-        </h2>
-        <p className="mt-0.5 text-[13px] text-[#78716c]">
-          Publish and maintain paywalled stories.
-        </p>
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-[15px] font-bold tracking-[-0.01em] text-[#1c1917]">
+              Content
+            </h2>
+            <p className="mt-0.5 text-[13px] text-[#78716c]">
+              Publishing lives on its own page now.
+            </p>
+          </div>
+          <Badge tone="neutral">
+            {previewLoading
+              ? "…"
+              : `${articlesPreview.length} ${articlesPreview.length === 1 ? "article" : "articles"}`}
+          </Badge>
+        </div>
       </div>
-      <div className="mt-5">
-        <ArticleManager />
+
+      <div className="mt-5 overflow-hidden rounded-lg border border-[#e7e5e4] bg-white">
+        {previewLoading ? (
+          <div className="divide-y divide-[#f0eeec]">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="px-5 py-4">
+                <div className="tynk-skeleton h-4 w-2/3 rounded" />
+                <div className="tynk-skeleton mt-2 h-3 w-40 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : articlesPreview.length === 0 ? (
+          <div className="px-5 py-6">
+            <p className="text-sm font-semibold text-[#1c1917]">No articles yet</p>
+            <p className="mt-1 text-[13px] text-[#78716c]">
+              Publish your first story from the publishing page.
+            </p>
+            <div className="mt-4">
+              <Link href="/admin/articles" className={btnSecondary}>
+                Open publishing →
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <>
+            <ul className="divide-y divide-[#f0eeec]">
+              {articlesPreview.slice(0, 4).map((a) => (
+                <li key={a.id} className="px-5 py-3.5">
+                  <p className="truncate text-[13.5px] font-semibold text-[#1c1917]">
+                    {a.title}
+                  </p>
+                  <p className="mt-0.5 truncate font-mono text-[11.5px] text-[#a8a29e]">
+                    /{a.slug} ·{" "}
+                    {new Date(a.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t border-[#e7e5e4] bg-[#fafaf9] px-5 py-3.5">
+              <Link
+                href="/admin/articles"
+                className="text-[13px] font-semibold text-[#1c1917] transition-colors hover:text-[#ff751f]"
+              >
+                Open publishing →
+              </Link>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="mt-8">
