@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useSubscription } from "@/context/SubscriptionContext";
 import { useRouter } from "next/navigation";
@@ -19,8 +20,15 @@ export default function Navbar() {
     <nav className="border-b border-gray-200 bg-white">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
         {/* Brand */}
-        <Link href="/" className="text-lg font-bold tracking-tight text-indigo-600">
-          AuthApp
+        <Link href="/" className="flex items-center" aria-label="Tynk home">
+          <Image
+            src="/tynk_logo.png"
+            alt="Tynk"
+            width={148}
+            height={42}
+            priority
+            className="h-8 w-auto object-contain"
+          />
         </Link>
 
         {/* Navigation links */}

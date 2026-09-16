@@ -5,8 +5,12 @@ import { SubscriptionProvider } from "@/context/SubscriptionContext";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Auth Frontend",
-  description: "Next.js JWT authentication client",
+  title: "Tynk",
+  description: "Tynk — stories worth subscribing to",
+  icons: {
+    icon: "/tynk_logo.png",
+    apple: "/tynk_logo.png",
+  },
 };
 
 export default function RootLayout({
